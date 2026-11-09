@@ -1,0 +1,69 @@
+name: Calidad integral
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Instalar dependencias reproducibles
+        run: npm ci
+        working-directory: backend
+      - name: Pruebas unitarias y de comportamiento
+        run: npm test
+        working-directory: backend
+      - name: Sintaxis JavaScript
+        run: find backend -name '*.js' -not -path '*/node_modules/*' -print0 | xargs -0 -r -n1 node --check
+      - name: Iniciar MongoDB 7 como replica set de un nodo
+        run: |
+          docker run -d --name mongo-ci --network host mongo:7 mongod --replSet rs0 --bind_ip_all
+          for i in $(seq 1 40); do
+            if docker exec mongo-ci mongosh --quiet --eval 'db.adminCommand({ping:1}).ok' 2>/dev/null | grep -q 1; then break; fi
+            sleep 2
+          done
+          docker exec mongo-ci mongosh --quiet --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]})"
+          for i in $(seq 1 40); do
+            if docker exec mongo-ci mongosh --quiet --eval 'quit(db.hello().isWritablePrimary ? 0 : 1)' >/dev/null 2>&1; then exit 0; fi
+            sleep 2
+          done
+          echo 'MongoDB no llegó a PRIMARY' >&2
+          exit 1
+      - name: Integración transaccional real (obligatoria)
+        run: node scripts/ejecutarIntegracionMongo.js
+        working-directory: backend
+        env:
+          MONGO_TEST_URI: mongodb://127.0.0.1:27017/inventario_ci_test?directConnection=true
+      - name: Diagnóstico MongoDB ante fallo
+        if: failure()
+        run: docker logs mongo-ci --tail 80 || true
+      - name: Detener MongoDB
+        if: always()
+        run: docker rm -f mongo-ci || true
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependencias reproducibles
+        run: npm ci
+        working-directory: frontend
+      - name: Verificar referencias locales Angular
+        run: node backend/scripts/verificarReferenciasAngular.js
+      - name: Compilar Angular en modo producción
+        run: npm run build:prod
+        working-directory: frontend

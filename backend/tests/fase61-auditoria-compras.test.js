@@ -1,0 +1,15 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarRecepciones}=require('../utils/auditoriaCompras');
+const base=()=>({_id:'o1',numero:'OC-1',proveedor:'prov1',sucursal:'s1',estado:'parcial',total:100,items:[{producto:'p1',cantidad:10,cantidadRecibida:4,costoUnitario:10}],recepciones:[{fecha:'2026-05-03T10:00:00Z',bodega:'b1',items:[{producto:'p1',cantidad:4}]}]});
+const codigos=o=>auditarRecepciones([o]).hallazgos.map(h=>h.codigo);
+test('compra parcial consistente no tiene hallazgos',()=>{const r=auditarRecepciones([base()]);assert.deepEqual(r.hallazgos,[]);assert.equal(r.resumen.unidadesRecibidas,4);});
+test('detecta diferencia entre acumulado y recepciones',()=>{const o=base();o.items[0].cantidadRecibida=5;assert.ok(codigos(o).includes('RECEPCION_DESCUADRADA'));});
+test('detecta recepción superior a lo comprado',()=>{const o=base();o.recepciones[0].items[0].cantidad=11;assert.ok(codigos(o).includes('SOBRERRECEPCION'));});
+test('detecta productos ajenos a la compra',()=>{const o=base();o.recepciones[0].items.push({producto:'p2',cantidad:1});assert.ok(codigos(o).includes('PRODUCTO_NO_SOLICITADO'));});
+test('detecta órdenes recibidas incompletas',()=>{const o=base();o.estado='recibida';assert.ok(codigos(o).includes('ESTADO_INCONSISTENTE'));});
+test('detecta órdenes enviadas con recepción',()=>{const o=base();o.estado='enviada';assert.ok(codigos(o).includes('ESTADO_INCONSISTENTE'));});
+test('detecta recepción sin bodega',()=>{const o=base();delete o.recepciones[0].bodega;assert.ok(codigos(o).includes('BODEGA_FALTANTE'));});
+test('detecta sucursal ausente',()=>{const o=base();delete o.sucursal;assert.ok(codigos(o).includes('SUCURSAL_FALTANTE'));});
+test('detecta cantidades no enteras',()=>{const o=base();o.items[0].cantidad=1.5;assert.ok(codigos(o).includes('CANTIDAD_INVALIDA'));});
+test('detecta línea de producto duplicada',()=>{const o=base();o.items.push({...o.items[0]});assert.ok(codigos(o).includes('LINEA_DUPLICADA'));});

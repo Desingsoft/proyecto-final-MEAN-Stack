@@ -1,0 +1,51 @@
+{
+  "fecha": "2026-11-08T03:23:43.353Z",
+  "resultados": [
+    {
+      "nombre": "Sintaxis de todos los JavaScript del backend",
+      "estado": "correcto",
+      "obligatorio": true,
+      "archivos": 171,
+      "errores": []
+    },
+    {
+      "nombre": "Pruebas automatizadas backend",
+      "estado": "correcto",
+      "obligatorio": true,
+      "codigo": 0,
+      "resumenPruebas": {
+        "total": 314,
+        "aprobadas": 311,
+        "fallidas": 0,
+        "omitidas": 3,
+        "canceladas": 0,
+        "pendientes": 0,
+        "completo": true,
+        "valido": true
+      },
+      "detalle": "tro se detecta\n  ---\n  duration_ms: 0.134955\n  type: 'test'\n  ...\n# Subtest: orden conciliada no duplica validaciones monetarias\nok 300 - orden conciliada no duplica validaciones monetarias\n  ---\n  duration_ms: 0.347754\n  type: 'test'\n  ...\n# Subtest: el total de pagos revisados se conserva al agregar hallazgos\nok 301 - el total de pagos revisados se conserva al agregar hallazgos\n  ---\n  duration_ms: 0.487736\n  type: 'test'\n  ...\n# Subtest: lee correctamente pruebas aprobadas y omitidas\nok 302 - lee correctamente pruebas aprobadas y omitidas\n  ---\n  duration_ms: 1.874057\n  type: 'test'\n  ...\n# Subtest: rechaza un resumen TAP incompleto\nok 303 - rechaza un resumen TAP incompleto\n  ---\n  duration_ms: 0.249765\n  type: 'test'\n  ...\n# Subtest: rechaza conteos contradictorios\nok 304 - rechaza conteos contradictorios\n  ---\n  duration_ms: 0.179454\n  type: 'test'\n  ...\n# Subtest: rechaza código de salida no exitoso\nok 305 - rechaza código de salida no exitoso\n  ---\n  duration_ms: 0.281945\n  type: 'test'\n  ...\n# Subtest: distingue omisiones de bloqueos de calidad\nok 306 - distingue omisiones de bloqueos de calidad\n  ---\n  duration_ms: 0.271152\n  type: 'test'\n  ...\n# Subtest: no aprueba si falta compilación obligatoria\nok 307 - no aprueba si falta compilación obligatoria\n  ---\n  duration_ms: 0.920036\n  type: 'test'\n  ...\n# Subtest: no aprueba resultados sin resumen de pruebas\nok 308 - no aprueba resultados sin resumen de pruebas\n  ---\n  duration_ms: 0.347322\n  type: 'test'\n  ...\n# Subtest: bloquea por IP incluso cuando se cambia el correo\nok 309 - bloquea por IP incluso cuando se cambia el correo\n  ---\n  duration_ms: 3.081283\n  type: 'test'\n  ...\n# Subtest: conserva cantidades aprobadas sin depender del precio actual\nok 310 - conserva cantidades aprobadas sin depender del precio actual\n  ---\n  duration_ms: 0.706259\n  type: 'test'\n  ...\n# Subtest: rechaza cambios de cantidades\nok 311 - rechaza cambios de cantidades\n  ---\n  duration_ms: 0.102469\n  type: 'test'\n  ...\n# Subtest: rechaza productos duplicados\nok 312 - rechaza productos duplicados\n  ---\n  duration_ms: 0.078537\n  type: 'test'\n  ...\n# Subtest: respeta total con descuento aprobado\nok 313 - respeta total con descuento aprobado\n  ---\n  duration_ms: 0.125458\n  type: 'test'\n  ...\n# Subtest: rechaza total inconsistente\nok 314 - rechaza total inconsistente\n  ---\n  duration_ms: 0.182636\n  type: 'test'\n  ...\n1..314\n# tests 314\n# suites 0\n# pass 311\n# fail 0\n# cancelled 0\n# skipped 3\n# todo 0\n# duration_ms 3868.062443\n"
+    },
+    {
+      "nombre": "Referencias locales de Angular",
+      "estado": "correcto",
+      "obligatorio": true,
+      "codigo": 0,
+      "detalle": "{\n  \"archivos\": 97,\n  \"referencias\": 425,\n  \"errores\": []\n}\n"
+    },
+    {
+      "nombre": "Compilación Angular",
+      "estado": "no_disponible",
+      "obligatorio": true,
+      "detalle": "Dependencias no instaladas. Ejecutar npm ci en frontend y repetir."
+    }
+  ],
+  "aprobado": false,
+  "listoParaProduccion": false,
+  "bloqueos": [
+    "Compilación Angular: no_disponible"
+  ],
+  "advertencias": [
+    "3 pruebas omitidas: no equivalen a validación real"
+  ],
+  "nota": "La puerta de calidad comprueba sintaxis, pruebas y compilación; no certifica integración con MongoDB ni seguridad productiva."
+}

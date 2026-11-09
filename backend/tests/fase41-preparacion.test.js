@@ -1,0 +1,14 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { INDICES, contieneIndice, evaluarPreparacion } = require('../utils/evaluarPreparacion');
+const indices = Object.fromEntries(INDICES.map(i => [i.coleccion, [{ key: Object.fromEntries(i.campos.map(c => [c, 1])), unique: true, ...(i.parcial ? { partialFilterExpression: { claveIdempotencia: { $type: 'string' } } } : {}) }]]));
+const config = { jwtSeguro: true, corsRestringido: true, permitirSinTransaccion: false };
+const base = () => ({ replicaSet: true, indices, configuracion: config });
+test('apto con replica set, índices, inventario y configuración correctos', () => { assert.equal(evaluarPreparacion(base()).aptoParaPiloto, true); });
+test('bloquea instancia sin replica set', () => { const r = evaluarPreparacion({ ...base(), replicaSet: false }); assert.equal(r.aptoParaPiloto, false); assert.ok(r.hallazgos.some(x => x.codigo === 'SIN_REPLICA_SET')); });
+test('detecta índice único faltante', () => { const r = evaluarPreparacion({ ...base(), indices: { ...indices, existencias: [] } }); assert.ok(r.hallazgos.some(x => x.detalle.startsWith('existencias'))); });
+test('índice no único no cumple requisito', () => { assert.equal(contieneIndice([{ key: { producto: 1, bodega: 1 }, unique: false }], INDICES[0]), false); });
+test('índice sin filtro parcial no satisface idempotencia de movimientos', () => { assert.equal(contieneIndice([{ key: { claveIdempotencia: 1 }, unique: true }], INDICES[2]), false); });
+test('registros históricos y diferencias requieren revisión', () => { const r = evaluarPreparacion({ ...base(), registrosSinSucursal: { pedidos: 2 }, diferencias: 3 }); assert.equal(r.aptoParaPiloto, false); assert.equal(r.hallazgos.filter(x => x.nivel === 'revision').length, 2); });
+test('bloquea secretos inseguros y CORS abierto', () => { const r = evaluarPreparacion({ ...base(), configuracion: { jwtSeguro: false, corsRestringido: false } }); assert.equal(r.bloqueantes, 2); });
+test('bloquea transacciones desactivadas', () => { const r = evaluarPreparacion({ ...base(), configuracion: { ...config, permitirSinTransaccion: true } }); assert.ok(r.hallazgos.some(x => x.codigo === 'TRANSACCIONES_DESACTIVADAS')); });

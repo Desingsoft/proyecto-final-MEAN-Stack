@@ -1,0 +1,2968 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Inventario y Pedidos PYMES - API (borrador)",
+    "version": "0.7.0",
+    "description": "Inventario generado de rutas; cuerpos y esquemas de respuesta NO están verificados ni completos."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/api/devoluciones": {
+      "get": {
+        "tags": [
+          "devoluciones"
+        ],
+        "summary": "GET /api/devoluciones (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "devoluciones"
+        ],
+        "summary": "POST /api/devoluciones (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/devoluciones/pedido/{pedidoId}": {
+      "get": {
+        "tags": [
+          "devoluciones"
+        ],
+        "summary": "GET /api/devoluciones/pedido/{pedidoId} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "pedidoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/devoluciones/{id}": {
+      "get": {
+        "tags": [
+          "devoluciones"
+        ],
+        "summary": "GET /api/devoluciones/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/devoluciones/{id}/anular": {
+      "patch": {
+        "tags": [
+          "devoluciones"
+        ],
+        "summary": "PATCH /api/devoluciones/{id}/anular (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/inventario/movimientos": {
+      "get": {
+        "tags": [
+          "inventario"
+        ],
+        "summary": "GET /api/inventario/movimientos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/inventario/movimiento": {
+      "post": {
+        "tags": [
+          "inventario"
+        ],
+        "summary": "POST /api/inventario/movimiento (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/proveedores": {
+      "get": {
+        "tags": [
+          "proveedores"
+        ],
+        "summary": "GET /api/proveedores (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "proveedores"
+        ],
+        "summary": "POST /api/proveedores (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/proveedores/{id}": {
+      "get": {
+        "tags": [
+          "proveedores"
+        ],
+        "summary": "GET /api/proveedores/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "proveedores"
+        ],
+        "summary": "PUT /api/proveedores/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "proveedores"
+        ],
+        "summary": "DELETE /api/proveedores/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra": {
+      "get": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "GET /api/ordenes-compra (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "POST /api/ordenes-compra (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra/desde-reposicion": {
+      "post": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "POST /api/ordenes-compra/desde-reposicion (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra/{id}": {
+      "get": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "GET /api/ordenes-compra/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "PUT /api/ordenes-compra/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra/{id}/estado": {
+      "patch": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "PATCH /api/ordenes-compra/{id}/estado (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra/{id}/recibir": {
+      "post": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "POST /api/ordenes-compra/{id}/recibir (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ordenes-compra/{id}/facturacion": {
+      "patch": {
+        "tags": [
+          "ordenes-compra"
+        ],
+        "summary": "PATCH /api/ordenes-compra/{id}/facturacion (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/documentos": {
+      "get": {
+        "tags": [
+          "documentos"
+        ],
+        "summary": "GET /api/documentos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "documentos"
+        ],
+        "summary": "POST /api/documentos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/documentos/pedido/{pedidoId}": {
+      "get": {
+        "tags": [
+          "documentos"
+        ],
+        "summary": "GET /api/documentos/pedido/{pedidoId} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "pedidoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/documentos/{id}": {
+      "get": {
+        "tags": [
+          "documentos"
+        ],
+        "summary": "GET /api/documentos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/documentos/{id}/anular": {
+      "patch": {
+        "tags": [
+          "documentos"
+        ],
+        "summary": "PATCH /api/documentos/{id}/anular (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/cobrar/resumen": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/cobrar/resumen (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/cobrar/a-favor": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/cobrar/a-favor (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/cobrar/clientes": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/cobrar/clientes (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/cobrar/estado-cuenta/{clienteId}": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/cobrar/estado-cuenta/{clienteId} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "clienteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/cobrar": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/cobrar (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/pagar/resumen": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/pagar/resumen (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/cartera/pagar": {
+      "get": {
+        "tags": [
+          "cartera"
+        ],
+        "summary": "GET /api/cartera/pagar (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos": {
+      "get": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "GET /api/pagos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/cobro": {
+      "post": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "POST /api/pagos/cobro (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/reembolso": {
+      "post": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "POST /api/pagos/reembolso (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/egreso": {
+      "post": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "POST /api/pagos/egreso (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/documento/{id}": {
+      "get": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "GET /api/pagos/documento/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/orden/{id}": {
+      "get": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "GET /api/pagos/orden/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/{id}": {
+      "get": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "GET /api/pagos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pagos/{id}/anular": {
+      "patch": {
+        "tags": [
+          "pagos"
+        ],
+        "summary": "PATCH /api/pagos/{id}/anular (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pedidos": {
+      "get": {
+        "tags": [
+          "pedidos"
+        ],
+        "summary": "GET /api/pedidos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "pedidos"
+        ],
+        "summary": "POST /api/pedidos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pedidos/resumen": {
+      "get": {
+        "tags": [
+          "pedidos"
+        ],
+        "summary": "GET /api/pedidos/resumen (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pedidos/{id}": {
+      "get": {
+        "tags": [
+          "pedidos"
+        ],
+        "summary": "GET /api/pedidos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pedidos/{id}/estado": {
+      "patch": {
+        "tags": [
+          "pedidos"
+        ],
+        "summary": "PATCH /api/pedidos/{id}/estado (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios/yo": {
+      "get": {
+        "tags": [
+          "usuarios"
+        ],
+        "summary": "GET /api/usuarios/yo (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios/yo/password": {
+      "patch": {
+        "tags": [
+          "usuarios"
+        ],
+        "summary": "PATCH /api/usuarios/yo/password (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios": {
+      "get": {
+        "tags": [
+          "usuarios"
+        ],
+        "summary": "GET /api/usuarios (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios/{id}": {
+      "patch": {
+        "tags": [
+          "usuarios"
+        ],
+        "summary": "PATCH /api/usuarios/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios/{id}/password": {
+      "patch": {
+        "tags": [
+          "usuarios"
+        ],
+        "summary": "PATCH /api/usuarios/{id}/password (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/clientes": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "GET /api/clientes (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "POST /api/clientes (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/clientes/{id}": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "GET /api/clientes/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "PUT /api/clientes/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "DELETE /api/clientes/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/configuracion": {
+      "get": {
+        "tags": [
+          "configuracion"
+        ],
+        "summary": "GET /api/configuracion (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "configuracion"
+        ],
+        "summary": "PUT /api/configuracion (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/eventos": {
+      "get": {
+        "tags": [
+          "eventos"
+        ],
+        "summary": "GET /api/eventos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /api/auth/login (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/api/auth/recuperar": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /api/auth/recuperar (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/api/auth/restablecer": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /api/auth/restablecer (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/api/auth/registro": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /api/auth/registro (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        }
+      }
+    },
+    "/api/reportes/dashboard": {
+      "get": {
+        "tags": [
+          "reportes"
+        ],
+        "summary": "GET /api/reportes/dashboard (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reportes/ventas": {
+      "get": {
+        "tags": [
+          "reportes"
+        ],
+        "summary": "GET /api/reportes/ventas (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reportes/inventario": {
+      "get": {
+        "tags": [
+          "reportes"
+        ],
+        "summary": "GET /api/reportes/inventario (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/reportes/movimientos": {
+      "get": {
+        "tags": [
+          "reportes"
+        ],
+        "summary": "GET /api/reportes/movimientos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/bodegas": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/bodegas (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "POST /api/avanzado/bodegas (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/existencias": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/existencias (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/auditoria": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/auditoria (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/alertas": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/alertas (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/notificaciones": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/notificaciones (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/notificaciones/{id}/leida": {
+      "patch": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "PATCH /api/avanzado/notificaciones/{id}/leida (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/conteos": {
+      "post": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "POST /api/avanzado/conteos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/conteos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/cotizaciones": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/cotizaciones (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "POST /api/avanzado/cotizaciones (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/cotizaciones/{id}/estado": {
+      "patch": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "PATCH /api/avanzado/cotizaciones/{id}/estado (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/indicadores": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/indicadores (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/codigo-barras/{codigo}": {
+      "get": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "GET /api/avanzado/codigo-barras/{codigo} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/avanzado/cotizaciones/{id}/convertir": {
+      "post": {
+        "tags": [
+          "avanzado"
+        ],
+        "summary": "POST /api/avanzado/cotizaciones/{id}/convertir (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/productos": {
+      "get": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "GET /api/productos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "POST /api/productos (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/productos/stock-bajo": {
+      "get": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "GET /api/productos/stock-bajo (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/productos/categorias": {
+      "get": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "GET /api/productos/categorias (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/productos/reposicion": {
+      "get": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "GET /api/productos/reposicion (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/productos/{id}": {
+      "get": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "GET /api/productos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "PUT /api/productos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "productos"
+        ],
+        "summary": "DELETE /api/productos/{id} (contrato preliminar; revisar controlador)",
+        "responses": {
+          "200": {
+            "description": "Respuesta satisfactoria; esquema por documentar"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Sin permiso"
+          },
+          "500": {
+            "description": "Error interno"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  }
+}

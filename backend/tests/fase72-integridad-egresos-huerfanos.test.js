@@ -1,0 +1,16 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarVinculosEgresos}=require('../utils/auditoriaEgresosHuerfanos');
+const base={_id:'e1',orden:'o1',numero:'CE1',monto:100,estado:'vigente',sucursal:'s1',proveedor:'p1'};
+const orden={_id:'o1',sucursal:'s1',proveedor:'p1'};
+const codigos=(p,ordenes=[orden],opciones={})=>auditarVinculosEgresos([p],ordenes,opciones).hallazgos.map(h=>h.codigo);
+test('egreso válido fuera del filtro de órdenes no genera hallazgos',()=>assert.deepEqual(codigos(base),[]));
+test('egreso sin orden con monto cero informa vínculo e importe',()=>assert.deepEqual(codigos({...base,orden:null,monto:0}),['EGRESO_SIN_ORDEN','EGRESO_MONTO_INVALIDO']));
+test('egreso sin orden con estado inválido se informa',()=>assert.deepEqual(codigos({...base,orden:null,estado:'desconocido'}),['EGRESO_SIN_ORDEN','EGRESO_ESTADO_INVALIDO']));
+test('orden inexistente e importe negativo generan dos hallazgos',()=>assert.deepEqual(codigos({...base,orden:'desaparecida',monto:-1},[]),['EGRESO_ORDEN_INEXISTENTE','EGRESO_MONTO_INVALIDO']));
+test('orden inexistente y estado inválido generan dos hallazgos',()=>assert.deepEqual(codigos({...base,orden:'desaparecida',estado:null},[]),['EGRESO_ORDEN_INEXISTENTE','EGRESO_ESTADO_INVALIDO']));
+test('importe decimal o infinito es inválido',()=>{for(const monto of [0.5,Infinity,NaN,Number.MAX_SAFE_INTEGER+1,null])assert.ok(codigos({...base,monto}).includes('EGRESO_MONTO_INVALIDO'));});
+test('estado inválido de orden existente fuera del filtro se detecta',()=>assert.deepEqual(codigos({...base,estado:'pendiente'}),['EGRESO_ESTADO_INVALIDO']));
+test('importe inválido de orden existente fuera del filtro se detecta',()=>assert.deepEqual(codigos({...base,monto:0}),['EGRESO_MONTO_INVALIDO']));
+test('orden conciliada no duplica validaciones monetarias',()=>assert.deepEqual(codigos({...base,monto:0,estado:'otro'},[orden],{ordenesConciliadas:new Set(['o1'])}),[]));
+test('el total de pagos revisados se conserva al agregar hallazgos',()=>{const r=auditarVinculosEgresos([{...base,orden:null,monto:0,estado:'otro'},base],[orden]);assert.equal(r.resumen.pagosRevisados,2);assert.equal(r.hallazgos.length,3);});

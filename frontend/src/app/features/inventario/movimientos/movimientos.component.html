@@ -1,0 +1,97 @@
+<header class="page-header">
+  <div>
+    <h1>Inventario</h1>
+    <p class="subtitulo">Registra entradas y salidas de mercancía y consulta el historial de movimientos.</p>
+  </div>
+</header>
+
+<div class="inventario-container">
+
+  <section class="panel">
+    <div class="panel-header"><h2>Registrar movimiento</h2></div>
+    <form [formGroup]="movimientoForm" (ngSubmit)="onSubmit()" class="form-inline">
+      <div class="form-group">
+        <label for="mv-producto">Producto</label>
+        <select id="mv-producto" formControlName="producto">
+          <option value="" disabled>Selecciona un producto</option>
+          @for (producto of productos(); track producto._id) {
+            <option [value]="producto._id">{{ producto.nombre }} (stock: {{ producto.stock }})</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="mv-bodega">Bodega</label>
+        <select id="mv-bodega" formControlName="bodega">
+          <option value="" disabled>Selecciona una bodega autorizada</option>
+          @for (bodega of bodegas(); track bodega._id) {
+            <option [value]="bodega._id">{{ bodega.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo</label>
+        <select formControlName="tipo">
+          <option value="entrada">Entrada</option>
+          <option value="salida">Salida</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Cantidad</label>
+        <input type="number" formControlName="cantidad" min="1">
+      </div>
+
+      <div class="form-group">
+        <label>Motivo</label>
+        <input type="text" formControlName="motivo" placeholder="Ej: compra, ajuste, devolución">
+      </div>
+
+      <button type="submit" [disabled]="movimientoForm.invalid || cargando()">
+        {{ cargando() ? 'Registrando...' : 'Registrar' }}
+      </button>
+    </form>
+
+    @if (errorMsg()) {
+      <div class="error-alert">{{ errorMsg() }}</div>
+    }
+  </section>
+
+  <section class="panel">
+    <div class="panel-header"><h2>Historial de movimientos</h2></div>
+
+    @if (movimientos().length === 0) {
+      <p class="sin-datos">No hay movimientos registrados</p>
+    } @else {
+      <div class="tabla-wrap"><table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th class="num">Cantidad</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (mov of movimientos(); track mov._id) {
+            <tr [class.entrada]="mov.tipo === 'entrada'" [class.salida]="mov.tipo === 'salida'">
+              <td>{{ nombreProducto(mov) }}</td>
+              <td><span [class]="'chip ' + (mov.tipo === 'entrada' ? 'chip-ok' : 'chip-critico')" style="text-transform: capitalize">{{ mov.tipo }}</span></td>
+              <td class="num">{{ mov.cantidad }}</td>
+              <td>{{ mov.motivo || '—' }}</td>
+              <td>{{ mov.createdAt | date:'d MMM y, h:mm a' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table></div>
+
+      <div class="paginacion">
+        <button (click)="cambiarPagina(paginaActual() - 1)" [disabled]="paginaActual() === 1">Anterior</button>
+        <span>Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+        <button (click)="cambiarPagina(paginaActual() + 1)" [disabled]="paginaActual() === totalPaginas()">Siguiente</button>
+      </div>
+    }
+  </section>
+</div>

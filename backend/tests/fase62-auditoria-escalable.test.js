@@ -1,0 +1,13 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarRecepciones}=require('../utils/auditoriaCompras');
+const {crearAcumulador,agregarResultado}=require('../utils/resumenAuditoriaCompras');
+const orden=()=>({_id:'o1',numero:'OC-1',proveedor:'prov1',sucursal:'s1',estado:'parcial',total:100,items:[{producto:'p1',cantidad:10,cantidadRecibida:4,costoUnitario:10}],recepciones:[{fecha:'2026-05-03T10:00:00Z',bodega:'b1',items:[{producto:'p1',cantidad:4}]}]});
+test('auditoría conserva totales con cero hallazgos',()=>{const a=crearAcumulador(0);agregarResultado(a,auditarRecepciones([orden()]));assert.equal(a.resumen.ordenes,1);assert.equal(a.totalHallazgos,0);});
+test('limita hallazgos pero conserva el total',()=>{const o=orden();delete o.sucursal;delete o.recepciones[0].bodega;o.estado='enviada';const a=crearAcumulador(1);agregarResultado(a,auditarRecepciones([o]));assert.equal(a.hallazgos.length,1);assert.equal(a.totalHallazgos,3);assert.equal(a.hallazgosOmitidos,2);});
+test('cuenta códigos incluso cuando se omiten detalles',()=>{const o=orden();delete o.sucursal;const a=crearAcumulador(0);agregarResultado(a,auditarRecepciones([o]));assert.equal(a.codigos.SUCURSAL_FALTANTE,1);assert.equal(a.hallazgos.length,0);});
+test('acumula múltiples órdenes sin perder totales',()=>{const a=crearAcumulador();for(let i=0;i<3;i++)agregarResultado(a,auditarRecepciones([orden()]));assert.equal(a.resumen.ordenes,3);assert.equal(a.resumen.unidadesSolicitadas,30);});
+test('rechaza límites inválidos',()=>{for(const v of [-1,1.5,100001,Infinity])assert.throws(()=>crearAcumulador(v),RangeError);});
+test('rechaza overflow de totales',()=>{const a=crearAcumulador();a.resumen.ordenes=Number.MAX_SAFE_INTEGER;assert.throws(()=>agregarResultado(a,auditarRecepciones([orden()])),RangeError);});
+test('detecta overflow al sumar líneas duplicadas',()=>{const o=orden();o.items=[{producto:'p1',cantidad:Number.MAX_SAFE_INTEGER,cantidadRecibida:0},{producto:'p1',cantidad:2,cantidadRecibida:0}];o.recepciones=[];assert.ok(auditarRecepciones([o]).hallazgos.some(h=>h.codigo==='CANTIDAD_FUERA_RANGO'));});
+test('detecta overflow en recepciones repetidas',()=>{const o=orden();o.items=[{producto:'p1',cantidad:Number.MAX_SAFE_INTEGER,cantidadRecibida:0}];o.recepciones=[{bodega:'b1',items:[{producto:'p1',cantidad:Number.MAX_SAFE_INTEGER},{producto:'p1',cantidad:1}]}];assert.ok(auditarRecepciones([o]).hallazgos.some(h=>h.codigo==='RECEPCION_FUERA_RANGO'));});

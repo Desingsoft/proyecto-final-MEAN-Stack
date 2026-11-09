@@ -1,0 +1,41 @@
+{
+  "name": "inventario-pedidos-backend",
+  "version": "1.0.0",
+  "description": "Backend del sistema de gestión de inventario y pedidos para pymes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed:demo": "node scripts/seedDemo.js",
+    "crear:admin": "node scripts/crearAdmin.js",
+    "test": "node --test tests/*.test.js",
+    "smtp:verificar": "node scripts/verificarSmtp.js",
+    "auditar:facturas": "node scripts/auditarFacturasHistoricas.js",
+    "auditar:sucursales": "node scripts/auditarSucursales.js",
+    "auditar:asignacion-sucursales": "node scripts/auditarAsignacionSucursales.js",
+    "auditar:transferencias": "node scripts/conciliarTransferencias.js",
+    "auditar:inventario-sucursales": "node scripts/diagnosticarInventarioSucursales.js",
+    "verificar:preparacion": "node scripts/verificarPreparacion.js",
+    "verificar:calidad": "node scripts/puertaCalidad.js",
+    "verificar:referencias-angular": "node scripts/verificarReferenciasAngular.js",
+    "test:integracion-mongo": "node scripts/ejecutarIntegracionMongo.js",
+    "verificar:dependencias": "node scripts/verificarDependencias.js",
+    "auditar:transferencias-completo": "node scripts/conciliarTransferenciasCompleto.js",
+    "auditar:recepciones-compras": "node scripts/auditarRecepcionesCompras.js",
+    "auditar:egresos-compras": "node scripts/auditarEgresosCompras.js",
+    "verificar:entorno": "node scripts/verificarEntorno.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.0",
+    "nodemailer": "^6.9.16",
+    "express-validator": "^7.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

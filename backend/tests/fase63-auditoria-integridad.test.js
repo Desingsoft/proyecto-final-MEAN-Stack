@@ -1,0 +1,14 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarRecepciones}=require('../utils/auditoriaCompras');
+const orden=()=>({_id:'o1',numero:'OC-1',proveedor:'prov1',sucursal:'s1',estado:'parcial',total:100,items:[{producto:'p1',cantidad:10,cantidadRecibida:4,costoUnitario:10}],recepciones:[{fecha:'2026-05-03T10:00:00Z',bodega:'b1',items:[{producto:'p1',cantidad:4}]}]});
+const codigos=o=>auditarRecepciones([o]).hallazgos.map(h=>h.codigo);
+test('orden válida no presenta hallazgos',()=>assert.deepEqual(codigos(orden()),[]));
+test('identifica proveedor ausente',()=>{const o=orden();delete o.proveedor;assert.ok(codigos(o).includes('PROVEEDOR_FALTANTE'));});
+test('identifica orden sin productos',()=>{const o=orden();o.items=[];assert.ok(codigos(o).includes('ORDEN_SIN_ITEMS'));});
+test('identifica historial de recepciones inválido',()=>{const o=orden();o.recepciones=null;assert.ok(codigos(o).includes('HISTORIAL_RECEPCIONES_INVALIDO'));});
+test('identifica fecha esperada inválida',()=>{const o=orden();o.fechaEsperada='fecha-invalida';assert.ok(codigos(o).includes('FECHA_ESPERADA_INVALIDA'));});
+test('identifica estado desconocido',()=>{const o=orden();o.estado='otro';assert.ok(codigos(o).includes('ESTADO_DESCONOCIDO'));});
+test('identifica recepción sin líneas',()=>{const o=orden();o.recepciones=[{bodega:'b1',items:[]}];assert.ok(codigos(o).includes('RECEPCION_SIN_ITEMS'));});
+test('identifica orden cancelada con recepciones',()=>{const o=orden();o.estado='cancelada';assert.ok(codigos(o).includes('CANCELADA_CON_RECEPCIONES'));});
+test('identifica orden recibida sin productos',()=>{const o=orden();o.estado='recibida';o.items=[];o.recepciones=[];assert.ok(codigos(o).includes('RECIBIDA_SIN_PRODUCTOS'));});

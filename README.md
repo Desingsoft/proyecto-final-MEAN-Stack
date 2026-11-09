@@ -813,3 +813,4 @@ Fase 71: controles de referencias de sucursal y proveedor en egresos. Ver `docs/
 
 - **Fase 73:** puerta de calidad con conteos TAP verificados, advertencias por pruebas omitidas y bloqueo explícito por compilación no disponible (`docs/REVISION_FASE73.md`).
 # proyecto-final-MEAN-Stack
+# proyecto-final-MEAN-Stack

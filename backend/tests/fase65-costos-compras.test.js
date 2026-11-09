@@ -1,0 +1,14 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarRecepciones}=require('../utils/auditoriaCompras');
+const base=(changes={})=>({ _id:'orden-1',numero:'OC-1',proveedor:'proveedor-1',sucursal:'sucursal-1',estado:'enviada',total:100,items:[{producto:'p1',cantidad:2,cantidadRecibida:0,costoUnitario:50}],recepciones:[],...changes});
+const codigos=o=>auditarRecepciones([o]).hallazgos.map(x=>x.codigo);
+test('auditoría acepta total correcto calculado como el controlador',()=>assert.equal(codigos(base()).filter(c=>c.startsWith('TOTAL_MONETARIO')||c==='COSTO_UNITARIO_INVALIDO').length,0));
+test('detecta total monetario descuadrado',()=>assert.ok(codigos(base({total:99})).includes('TOTAL_MONETARIO_DESCUADRADO')));
+test('detecta costo negativo',()=>assert.ok(codigos(base({items:[{producto:'p1',cantidad:2,cantidadRecibida:0,costoUnitario:-1}]})).includes('COSTO_UNITARIO_INVALIDO')));
+test('detecta costo ausente',()=>assert.ok(codigos(base({items:[{producto:'p1',cantidad:2,cantidadRecibida:0}]})).includes('COSTO_UNITARIO_INVALIDO')));
+test('detecta costo infinito',()=>assert.ok(codigos(base({items:[{producto:'p1',cantidad:2,cantidadRecibida:0,costoUnitario:Infinity}]})).includes('COSTO_UNITARIO_INVALIDO')));
+test('detecta total almacenado inválido',()=>assert.ok(codigos(base({total:NaN})).includes('TOTAL_MONETARIO_INVALIDO')));
+test('detecta multiplicación monetaria fuera de rango',()=>assert.ok(codigos(base({items:[{producto:'p1',cantidad:2,cantidadRecibida:0,costoUnitario:Number.MAX_SAFE_INTEGER}]})).includes('COSTO_UNITARIO_INVALIDO')));
+test('evita falsa diferencia monetaria cuando una cantidad es inválida',()=>assert.ok(!codigos(base({items:[{producto:'p1',cantidad:0,cantidadRecibida:0,costoUnitario:50}]})).includes('TOTAL_MONETARIO_DESCUADRADO')));
+test('respeta el redondeo del total aplicado por el controlador',()=>assert.ok(!codigos(base({total:101,items:[{producto:'p1',cantidad:2,cantidadRecibida:0,costoUnitario:50.49}]})).includes('TOTAL_MONETARIO_DESCUADRADO')));

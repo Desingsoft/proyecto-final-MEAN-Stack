@@ -1,0 +1,15 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarRecepciones}=require('../utils/auditoriaCompras');
+const item={producto:'p1',cantidad:5,cantidadRecibida:2,costoUnitario:10};
+const recibida={_id:'r1',fecha:'2026-05-03T10:00:00Z',bodega:'b1',items:[{producto:'p1',cantidad:2}]};
+const orden=(c={})=>({_id:'o1',numero:'OC-1',proveedor:'pr1',sucursal:'s1',createdAt:'2026-05-02T10:00:00Z',estado:'parcial',items:[item],total:50,recepciones:[recibida],...c});
+const codigos=o=>auditarRecepciones([o]).hallazgos.map(x=>x.codigo);
+test('recepción válida no produce alertas cronológicas',()=>assert.deepEqual(codigos(orden()),[]));
+test('detecta identificador de recepción duplicado',()=>assert.ok(codigos(orden({recepciones:[recibida,{...recibida}]})).includes('RECEPCION_ID_DUPLICADO')));
+test('detecta fecha de recepción inexistente',()=>assert.ok(codigos(orden({recepciones:[{...recibida,fecha:undefined}]})).includes('RECEPCION_FECHA_INVALIDA')));
+test('detecta fecha de recepción malformada',()=>assert.ok(codigos(orden({recepciones:[{...recibida,fecha:'no-fecha'}]})).includes('RECEPCION_FECHA_INVALIDA')));
+test('detecta recepción anterior a la creación de la orden',()=>assert.ok(codigos(orden({recepciones:[{...recibida,fecha:'2026-05-01T10:00:00Z'}]})).includes('RECEPCION_ANTERIOR_ORDEN')));
+test('tolera un minuto de diferencia por relojes desincronizados',()=>assert.ok(!codigos(orden({recepciones:[{...recibida,fecha:'2026-05-02T09:59:30Z'}]})).includes('RECEPCION_ANTERIOR_ORDEN')));
+test('no exige identificador en recepciones heredadas',()=>assert.ok(!codigos(orden({recepciones:[{...recibida,_id:undefined}]})).includes('RECEPCION_ID_DUPLICADO')));
+test('no inventa fecha de creación en documentos heredados',()=>assert.ok(!codigos(orden({createdAt:undefined})).includes('RECEPCION_ANTERIOR_ORDEN')));

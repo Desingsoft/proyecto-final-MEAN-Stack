@@ -1,0 +1,168 @@
+<header class="page-header">
+  <div>
+    <h1>Usuarios</h1>
+    <p class="subtitulo">Administra quién puede entrar al sistema y qué puede hacer cada persona.</p>
+  </div>
+  <a routerLink="/usuarios/nuevo" class="btn-primary"><app-icon name="mas" [size]="18" /> Nuevo usuario</a>
+</header>
+
+@if (cargando()) {
+  <div class="skeleton" style="height: 380px"></div>
+} @else if (error()) {
+  <div class="panel vacio">
+    <span class="icono-vacio"><app-icon name="alerta" [size]="26" /></span>
+    <strong>No pudimos cargar los usuarios</strong>
+    <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else {
+  <div class="kpis" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr))">
+    <div class="kpi" style="min-height: 0">
+      <span class="kpi-etiqueta">Usuarios</span>
+      <span class="kpi-valor">{{ resumen().total }}</span>
+      <span class="kpi-pie">{{ resumen().activos }} activos @if (resumen().inactivos) { y {{ resumen().inactivos }} inactivos }</span>
+    </div>
+    @for (rol of roles; track rol) {
+      <div class="kpi" style="min-height: 0">
+        <span class="kpi-etiqueta">{{ etiquetaRol[rol] }}</span>
+        <span class="kpi-valor">{{ conteoRol(rol) }}</span>
+      </div>
+    }
+  </div>
+
+  <section class="panel">
+    <div class="barra-filtros">
+      <label class="buscador">
+        <span class="sr-only">Buscar usuarios</span>
+        <app-icon name="buscar" [size]="17" />
+        <input type="search" placeholder="Buscar por nombre o correo" [ngModel]="buscar()" (ngModelChange)="buscar.set($event)" />
+      </label>
+
+      <div class="filtro-chips" role="group" aria-label="Rol">
+        <button type="button" class="filtro-chip" [class.activo]="filtroRol() === ''" (click)="filtroRol.set('')">Todos los roles</button>
+        @for (rol of roles; track rol) {
+          <button type="button" class="filtro-chip" [class.activo]="filtroRol() === rol" (click)="filtroRol.set(rol)">{{ etiquetaRol[rol] }}</button>
+        }
+      </div>
+
+      <label>
+        <span class="sr-only">Estado</span>
+        <select [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)">
+          <option value="todos">Activos e inactivos</option>
+          <option value="activos">Solo activos</option>
+          <option value="inactivos">Solo inactivos</option>
+        </select>
+      </label>
+    </div>
+
+    @if (visibles().length === 0) {
+      <div class="vacio">
+        <span class="icono-vacio"><app-icon name="usuarios" [size]="26" /></span>
+        <strong>Ningún usuario coincide</strong>
+        <p>Prueba con otra búsqueda o cambia los filtros.</p>
+      </div>
+    } @else {
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th class="centro">Activo</th>
+              <th>Creado</th>
+              <th><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of visibles(); track u._id) {
+              <tr [style.opacity]="u.activo === false ? 0.6 : 1">
+                <td>
+                  <span style="display: flex; align-items: center; gap: 0.75rem">
+                    <span [class]="'avatar rol-' + u.role">{{ iniciales(u.nombre) }}</span>
+                    <span class="celda-doble">
+                      <span class="principal">{{ u.nombre }} @if (esYo(u)) { <span class="chip chip-neutro sin-punto" style="margin-left: 0.3rem">Tú</span> }</span>
+                      <span class="secundaria">{{ u.email }}</span>
+                    </span>
+                  </span>
+                </td>
+                <td><span [class]="'chip ' + claseRol[u.role]">{{ etiquetaRol[u.role] }}</span></td>
+                <td class="centro">
+                  <label class="switch" [attr.title]="esYo(u) ? 'No puedes desactivar tu propia cuenta' : (u.activo === false ? 'Reactivar' : 'Desactivar')">
+                    <input type="checkbox" [checked]="u.activo !== false" [disabled]="esYo(u)" (change)="alternarActivo(u)"
+                      [attr.aria-label]="'Usuario ' + u.nombre + (u.activo === false ? ' inactivo' : ' activo')" />
+                    <span class="pista"></span>
+                  </label>
+                </td>
+                <td>{{ u.createdAt | date:'d MMM y' }}</td>
+                <td>
+                  <span class="acciones" style="justify-content: flex-end">
+                    <button type="button" class="btn-icono" (click)="abrirEdicion(u)" title="Editar" [attr.aria-label]="'Editar a ' + u.nombre"><app-icon name="editar" [size]="17" /></button>
+                    <button type="button" class="btn-icono" (click)="abrirPassword(u)" title="Restablecer contraseña" [attr.aria-label]="'Restablecer contraseña de ' + u.nombre"><app-icon name="llave" [size]="17" /></button>
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+<!-- Editar usuario -->
+@if (editando(); as u) {
+  <app-modal titulo="Editar usuario" [descripcion]="u.email" (cerrar)="cerrarEdicion()">
+    <form [formGroup]="formEditar" (ngSubmit)="guardarEdicion()" id="form-editar" novalidate>
+      <div class="form-group">
+        <label for="ed-nombre">Nombre</label>
+        <input id="ed-nombre" type="text" formControlName="nombre" />
+      </div>
+      <div class="form-group">
+        <label for="ed-email">Correo electrónico</label>
+        <input id="ed-email" type="email" formControlName="email" />
+      </div>
+      <div class="form-group">
+        <label for="ed-rol">Rol</label>
+        <select id="ed-rol" formControlName="role">
+          @for (rol of roles; track rol) { <option [value]="rol">{{ etiquetaRol[rol] }}</option> }
+        </select>
+        <span class="ayuda">{{ descripcionRol[rolSeleccionado()] }}</span>
+      </div>
+      @if (esYo(u)) {
+        <p class="ayuda" style="font-size: 0.8rem; color: var(--texto-suave)">Para evitar quedarte sin acceso, no puedes quitarte tu propio rol de administrador.</p>
+      }
+      @if (errorModal()) { <div class="error-alert" role="alert">{{ errorModal() }}</div> }
+      <!-- Campos opcionales para usuarios antiguos; requeridos al registrar usuarios nuevos. -->
+      <div class="form-group"><label for="edit-fecha">Fecha de nacimiento</label><input id="edit-fecha" type="date" formControlName="fechaNacimiento" /></div>
+      <div class="form-group"><label for="edit-sexo">Sexo</label><select id="edit-sexo" formControlName="sexo"><option value="prefiero_no_decir">Prefiero no decirlo</option><option value="femenino">Femenino</option><option value="masculino">Masculino</option><option value="otro">Otro</option></select></div>
+      <div class="form-group"><label for="edit-ciudad">Ciudad</label><input id="edit-ciudad" formControlName="ciudad" maxlength="100" /></div>
+    </form>
+    <div pie>
+      <button type="button" class="btn-secondary" (click)="cerrarEdicion()" [disabled]="guardando()">Cancelar</button>
+      <button type="submit" form="form-editar" class="btn-primary" [disabled]="formEditar.invalid || guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </app-modal>
+}
+
+<!-- Restablecer contraseña -->
+@if (restableciendo(); as u) {
+  <app-modal titulo="Restablecer contraseña" [descripcion]="'Define una contraseña nueva para ' + u.nombre" (cerrar)="cerrarPassword()">
+    <div class="form-group">
+      <label for="rp-pass">Nueva contraseña</label>
+      <div style="display: flex; gap: 0.5rem">
+        <input id="rp-pass" type="text" style="flex: 1" autocomplete="off" [ngModel]="nuevaPassword()" (ngModelChange)="nuevaPassword.set($event)" (keydown.enter)="guardarPassword()" />
+        <button type="button" class="btn-secondary" (click)="generarPassword()">Generar</button>
+        <button type="button" class="btn-icono" (click)="copiarPassword()" [disabled]="!nuevaPassword()" title="Copiar" aria-label="Copiar contraseña"><app-icon name="copiar" [size]="17" /></button>
+      </div>
+      <span class="ayuda">Mínimo 6 caracteres. Compártela con la persona por un canal seguro: no se puede volver a ver después.</span>
+    </div>
+    @if (errorModal()) { <div class="error-alert" role="alert">{{ errorModal() }}</div> }
+    <div pie>
+      <button type="button" class="btn-secondary" (click)="cerrarPassword()" [disabled]="guardando()">Cancelar</button>
+      <button type="button" class="btn-primary" (click)="guardarPassword()" [disabled]="nuevaPassword().length < 6 || guardando()">
+        {{ guardando() ? 'Guardando…' : 'Restablecer' }}
+      </button>
+    </div>
+  </app-modal>
+}

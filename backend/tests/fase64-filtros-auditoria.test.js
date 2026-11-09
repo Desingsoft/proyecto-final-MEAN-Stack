@@ -1,0 +1,15 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {configurarAuditoria,fechaCalendario}=require('../utils/configAuditoriaCompras');
+const {crearAcumulador,agregarResultado}=require('../utils/resumenAuditoriaCompras');
+const validar=id=>/^[0-9a-f]{24}$/.test(id);
+test('sin filtros conserva límite predeterminado',()=>{const r=configurarAuditoria({},validar);assert.equal(r.limite,1000);assert.deepEqual(r.filtro,{});});
+test('rango inclusivo cubre el día final completo mediante límite exclusivo',()=>{const r=configurarAuditoria({AUDITORIA_DESDE:'2026-02-01',AUDITORIA_HASTA:'2026-02-28'},validar);assert.equal(r.filtro.createdAt.$gte.toISOString(),'2026-02-01T00:00:00.000Z');assert.equal(r.filtro.createdAt.$lt.toISOString(),'2026-03-01T00:00:00.000Z');});
+test('filtro solo hasta permite auditoría histórica',()=>{const r=configurarAuditoria({AUDITORIA_HASTA:'2026-12-31'},validar);assert.equal(r.filtro.createdAt.$lt.toISOString(),'2027-01-01T00:00:00.000Z');});
+test('rechaza fecha inexistente y formato impreciso',()=>{for(const f of ['2026-02-30','2026-2-01','2026-13-01','texto'])assert.throws(()=>fechaCalendario(f,'AUDITORIA_DESDE'));});
+test('rechaza rango invertido',()=>assert.throws(()=>configurarAuditoria({AUDITORIA_DESDE:'2026-06-02',AUDITORIA_HASTA:'2026-06-01'},validar),/superar/));
+test('permite filtrar sucursal con identificador válido',()=>{const id='a'.repeat(24);assert.equal(configurarAuditoria({AUDITORIA_SUCURSAL:id},validar).filtro.sucursal,id);});
+test('rechaza sucursal inválida',()=>assert.throws(()=>configurarAuditoria({AUDITORIA_SUCURSAL:'incorrecta'},validar),/ObjectId/));
+test('rechaza límites negativos, decimales y excesivos',()=>{for(const n of ['-1','1.2','100001','NaN'])assert.throws(()=>configurarAuditoria({AUDITORIA_MAX_HALLAZGOS:n},validar));});
+test('límite cero conserva conteo de hallazgos sin detalles',()=>{const a=crearAcumulador(0);agregarResultado(a,{resumen:{ordenes:1,lineas:0,recepciones:0,unidadesSolicitadas:0,unidadesRecibidas:0},hallazgos:[{codigo:'ERROR'}]});assert.equal(a.totalHallazgos,1);assert.equal(a.hallazgosOmitidos,1);assert.deepEqual(a.hallazgos,[]);});
+test('conteo por código evita desbordamiento',()=>{const a=crearAcumulador();a.codigos.ERROR=Number.MAX_SAFE_INTEGER;assert.throws(()=>agregarResultado(a,{resumen:{ordenes:0,lineas:0,recepciones:0,unidadesSolicitadas:0,unidadesRecibidas:0},hallazgos:[{codigo:'ERROR'}]}),/fuera de rango/);});

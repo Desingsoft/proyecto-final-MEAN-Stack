@@ -1,0 +1,108 @@
+<header class="page-header">
+  <div>
+    <h1>Productos</h1>
+    <p class="subtitulo">Catálogo con el nivel de stock de cada producto frente a su mínimo.</p>
+  </div>
+  @if (puedeCrearEliminar()) {
+    <a routerLink="/productos/nuevo" class="btn-primary"><app-icon name="mas" [size]="18" /> Nuevo producto</a>
+  }
+</header>
+
+<section class="panel">
+  <div class="barra-filtros">
+    <label class="buscador">
+      <span class="sr-only">Buscar productos</span>
+      <app-icon name="buscar" [size]="17" />
+      <input type="search" placeholder="Buscar por nombre o SKU" [ngModel]="buscar()" (ngModelChange)="onBuscar($event)" />
+    </label>
+
+    <div class="filtro-chips" role="group" aria-label="Estado del stock">
+      <button type="button" class="filtro-chip" [class.activo]="estado() === ''" (click)="cambiarEstado('')">Todos</button>
+      <button type="button" class="filtro-chip" [class.activo]="estado() === 'bajo'" (click)="cambiarEstado('bajo')">Stock bajo</button>
+      <button type="button" class="filtro-chip" [class.activo]="estado() === 'agotado'" (click)="cambiarEstado('agotado')">Agotados</button>
+    </div>
+
+    @if (categorias().length > 0) {
+      <label>
+        <span class="sr-only">Categoría</span>
+        <select [ngModel]="categoria()" (ngModelChange)="cambiarCategoria($event)">
+          <option value="">Todas las categorías</option>
+          @for (c of categorias(); track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
+    }
+
+    <span class="espaciador"></span>
+    @if (hayFiltros()) {
+      <button type="button" class="btn-ghost btn-sm" (click)="limpiarFiltros()">Limpiar filtros</button>
+    }
+  </div>
+
+  @if (cargando() && productos().length === 0) {
+    <div class="skeleton" style="height: 320px"></div>
+  } @else if (productos().length === 0) {
+    <div class="vacio">
+      <span class="icono-vacio"><app-icon name="caja" [size]="26" /></span>
+      <strong>No encontramos productos</strong>
+      <p>{{ hayFiltros() ? 'Prueba con otros filtros o una búsqueda distinta.' : 'Cuando crees productos aparecerán aquí.' }}</p>
+      @if (hayFiltros()) {
+        <button type="button" class="btn-secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+      }
+    </div>
+  } @else {
+    <div class="tabla-wrap" [style.opacity]="cargando() ? 0.55 : 1" style="transition: opacity 0.15s">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th class="num">Precio</th>
+            <th>Stock</th>
+            <th>Nivel</th>
+            <th><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (producto of productos(); track producto._id) {
+            <tr>
+              <td>
+                <span class="celda-doble">
+                  <a class="principal" [routerLink]="['/productos/ficha', producto._id]" [attr.aria-label]="'Consultar ficha de '+producto.nombre">{{ producto.nombre }}</a>
+                  <span class="secundaria"><span class="codigo">{{ producto.sku }}</span>@if (proveedorNombre(producto)) { &nbsp;de {{ proveedorNombre(producto) }} }</span>
+                </span>
+              </td>
+              <td>{{ producto.categoria || '—' }}</td>
+              <td class="num">{{ producto.precio | dinero }}</td>
+              <td><app-stock-meter [stock]="producto.stock" [minimo]="producto.stockMinimo" /></td>
+              <td>
+                <span [class]="'chip ' + chipNivel[nivel(producto.stock, producto.stockMinimo)]">
+                  {{ etiquetaNivel[nivel(producto.stock, producto.stockMinimo)] }}
+                </span>
+              </td>
+              <td>
+                <span class="acciones" style="justify-content: flex-end">
+                  @if (puedeEditar()) {
+                    <a [routerLink]="['/productos/editar', producto._id]" class="btn-icono" title="Editar" [attr.aria-label]="'Editar ' + producto.nombre">
+                      <app-icon name="editar" [size]="17" />
+                    </a>
+                  }
+                  @if (puedeCrearEliminar()) {
+                    <button type="button" class="btn-icono peligro" (click)="eliminar(producto)" title="Eliminar" [attr.aria-label]="'Eliminar ' + producto.nombre">
+                      <app-icon name="papelera" [size]="17" />
+                    </button>
+                  }
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacion">
+      <button type="button" (click)="cambiarPagina(paginaActual() - 1)" [disabled]="paginaActual() === 1">Anterior</button>
+      <span>Página {{ paginaActual() }} de {{ totalPaginas() }}, {{ total() }} productos</span>
+      <button type="button" (click)="cambiarPagina(paginaActual() + 1)" [disabled]="paginaActual() === totalPaginas()">Siguiente</button>
+    </div>
+  }
+</section>

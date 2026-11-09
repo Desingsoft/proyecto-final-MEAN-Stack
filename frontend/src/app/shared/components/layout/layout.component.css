@@ -1,0 +1,90 @@
+:host { display: block; }
+
+.app-shell { min-height: 100vh; }
+
+/* ---- Barra lateral ---- */
+.lateral {
+  position: fixed; inset: 0 auto 0 0; width: 250px; z-index: 60;
+  display: flex; flex-direction: column; background: var(--tinta); color: #d4e2e3;
+  padding: 1.25rem 0.9rem 0.9rem;
+}
+
+.marca {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0.6rem 1.4rem;
+  font-family: var(--fuente-titulo); font-weight: 700; font-size: 1.1rem; line-height: 1.05; color: #fff; letter-spacing: -0.01em;
+}
+.cerrar-menu { display: none; margin-left: auto; color: #d4e2e3; }
+
+nav { flex: 1; overflow-y: auto; padding-bottom: 1rem; }
+.grupo { margin-bottom: 1.1rem; }
+.grupo-titulo { margin: 0 0 0.35rem; padding: 0 0.7rem; font-size: 0.78rem; font-weight: 600; color: #7fa0a3; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+nav a {
+  position: relative; display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.7rem;
+  border-radius: 9px; color: #c3d5d7; text-decoration: none; font-weight: 500; font-size: 0.93rem;
+  transition: background 0.15s, color 0.15s;
+}
+nav a:hover { background: var(--tinta-2); color: #fff; }
+nav a.activo { background: var(--tinta-3); color: #fff; }
+nav a.activo::before {
+  content: ''; position: absolute; left: -0.9rem; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: var(--ambar);
+}
+.insignia {
+  margin-left: auto; min-width: 22px; padding: 0 0.45rem; border-radius: 999px; background: var(--ambar);
+  color: #2a1c00; font-size: 0.75rem; font-weight: 700; text-align: center; line-height: 22px;
+}
+
+.usuario {
+  display: flex; align-items: center; gap: 0.4rem; padding: 0.7rem 0.5rem 0.2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.usuario-info {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.65rem; padding: 0.4rem; border-radius: 10px;
+  text-decoration: none; color: #fff;
+}
+.usuario-info:hover, .usuario-info.activo { background: var(--tinta-2); }
+.usuario-datos { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.usuario-datos strong { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.usuario-datos small { font-size: 0.75rem; color: #8fb0b3; }
+.btn-salir {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px; border: 0; cursor: pointer;
+  background: transparent; color: #9db9bb; transition: background 0.15s, color 0.15s;
+}
+.btn-salir:hover { background: rgba(179, 38, 30, 0.35); color: #fff; }
+
+/* ---- Contenido ---- */
+.contenido { margin-left: 250px; padding: 2rem 2.25rem 3rem; min-height: 100vh; }
+.contenido > *:not(router-outlet) { display: block; max-width: 1320px; margin: 0 auto; }
+
+/* ---- Móvil ---- */
+.barra-movil, .velo { display: none; }
+
+@media (max-width: 960px) {
+  .barra-movil {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem;
+    background: var(--tinta); color: #fff; border-bottom: 3px solid var(--ambar);
+  }
+  .barra-movil .btn-icono { color: #fff; }
+  .barra-movil .btn-icono:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+  .marca-movil {
+    display: flex; align-items: center; gap: 0.5rem; color: #fff; text-decoration: none;
+    font-family: var(--fuente-titulo); font-weight: 700;
+  }
+  .aviso-movil {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; border-radius: 999px;
+    background: var(--ambar); color: #2a1c00; text-decoration: none; font-weight: 700; font-size: 0.82rem;
+  }
+  .lateral { transform: translateX(-100%); transition: transform 0.25s ease; box-shadow: var(--sombra-flotante); }
+  .lateral.abierto { transform: none; }
+  .cerrar-menu { display: grid; }
+  .velo {
+    display: block; position: fixed; inset: 0; z-index: 50; background: rgba(16, 41, 44, 0.55);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .velo.visible { opacity: 1; pointer-events: auto; }
+  .contenido { margin-left: 0; padding: 1.25rem 1rem 2.5rem; min-height: 0; }
+  nav a.activo::before { left: -0.9rem; }
+}
+
+/* Enlace visible y táctil al módulo de gestión avanzada. */
+.enlace-avanzado{display:block;margin:1rem;padding:.8rem;border-radius:8px;color:inherit;text-decoration:none;min-height:44px}.enlace-avanzado:hover,.enlace-avanzado.activo{background:rgba(127,127,127,.15)}

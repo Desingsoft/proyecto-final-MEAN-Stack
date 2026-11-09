@@ -1,0 +1,116 @@
+<a routerLink="/pedidos" class="volver"><app-icon name="atras" [size]="14" /> Volver a pedidos</a>
+
+<div class="form-container nuevo-pedido" style="max-width: 900px; margin-top: 0.75rem">
+  <h1>Nuevo pedido</h1>
+
+  <!-- Cliente -->
+  <div class="form-group" style="position: relative">
+    <label for="np-cliente">Cliente</label>
+    <div style="position: relative">
+      <input
+        id="np-cliente" type="text" autocomplete="off" style="width: 100%; padding-right: 2.6rem"
+        placeholder="Escribe para buscar un cliente registrado o ingresa un nombre"
+        [ngModel]="textoCliente()" (ngModelChange)="alEscribirCliente($event)"
+        (focus)="mostrarSugerencias.set(true)" (blur)="mostrarSugerencias.set(false)"
+      />
+      @if (clienteSeleccionado()) {
+        <button type="button" class="btn-icono" style="position: absolute; right: 3px; top: 3px" (click)="quitarCliente()" aria-label="Quitar cliente"><app-icon name="cerrar" [size]="16" /></button>
+      }
+    </div>
+
+    @if (mostrarSugerencias() && textoCliente().trim().length >= 2 && !clienteSeleccionado()) {
+      <ul class="resultados-busqueda" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin-top: 4px">
+        @if (buscandoCliente()) {
+          <li style="color: var(--texto-tenue); cursor: default"><span>Buscando…</span></li>
+        } @else {
+          @for (c of sugerencias(); track c._id) {
+            <li (mousedown)="elegirCliente(c)">
+              <span>{{ c.nombre }}</span>
+              <span class="precio">{{ c.documento ? c.tipoDocumento + ' ' + c.documento : (c.ciudad || '') }}</span>
+            </li>
+          }
+          <li (mousedown)="creandoCliente.set(true)" style="color: var(--primario); font-weight: 600">
+            <span><app-icon name="mas" [size]="14" /> Crear cliente "{{ textoCliente().trim() }}"</span>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (clienteSeleccionado(); as c) {
+      <span class="ayuda" style="color: var(--ok-texto)"><app-icon name="check" [size]="13" /> Cliente registrado{{ c.documento ? ': ' + c.tipoDocumento + ' ' + c.documento : '' }}. Podrás emitirle facturas y remisiones con sus datos.</span>
+    } @else if (textoCliente().trim()) {
+      <span class="ayuda">Se guardará solo con el nombre escrito. Para facturarle con sus datos, elígelo de la lista o créalo.</span>
+    }
+  </div>
+
+  <!-- Productos -->
+  <div class="buscador-productos">
+    <label for="np-producto">Agregar producto</label>
+    <input id="np-producto" type="text" placeholder="Buscar por nombre o SKU..." autocomplete="off"
+      [ngModel]="busquedaProducto()" (ngModelChange)="busquedaProducto.set($event)" />
+
+    @if (productosFiltrados().length > 0) {
+      <ul class="resultados-busqueda">
+        @for (producto of productosFiltrados(); track producto._id) {
+          <li (click)="agregarProducto(producto)">
+            <span>{{ producto.nombre }} <span class="codigo">({{ producto.sku }})</span></span>
+            <span class="precio">{{ producto.precio | dinero }}, stock: {{ producto.stock }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  @if (carrito().length === 0) {
+    <p class="sin-datos">Aún no has agregado productos al pedido</p>
+  } @else {
+    <div class="tabla-wrap"><table class="carrito-tabla">
+      <thead>
+        <tr><th>Producto</th><th class="num">Precio</th><th>Cantidad</th><th class="num">Subtotal</th><th><span class="sr-only">Quitar</span></th></tr>
+      </thead>
+      <tbody>
+        @for (item of carrito(); track item.producto._id) {
+          <tr>
+            <td>{{ item.producto.nombre }}</td>
+            <td class="num">{{ item.producto.precio | dinero }}</td>
+            <td>
+              <span class="cantidad-control">
+                <button type="button" (click)="decrementarCantidad(item.producto._id!)" aria-label="Disminuir">−</button>
+                <span>{{ item.cantidad }}</span>
+                <button type="button" (click)="incrementarCantidad(item.producto._id!)" aria-label="Aumentar">+</button>
+              </span>
+            </td>
+            <td class="num">{{ item.producto.precio * item.cantidad | dinero }}</td>
+            <td><button type="button" class="btn-icono peligro" (click)="quitarProducto(item.producto._id!)" aria-label="Quitar producto"><app-icon name="papelera" [size]="16" /></button></td>
+          </tr>
+        }
+      </tbody>
+    </table></div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 1rem">
+      <dl style="display: grid; grid-template-columns: auto 9rem; gap: 0.4rem 1.25rem; margin: 0; text-align: right; align-items: center">
+        <dt style="color: var(--texto-suave)">Subtotal</dt><dd style="margin: 0">{{ subtotal() | dinero }}</dd>
+        <dt style="color: var(--texto-suave)"><label for="np-desc">Descuento (%)</label></dt>
+        <dd style="margin: 0"><input id="np-desc" type="number" min="0" max="100" step="1" style="width: 5.5rem; text-align: right; min-height: 34px" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" /></dd>
+        @if (valorDescuento() > 0) { <dt style="color: var(--texto-suave)">Ahorro</dt><dd style="margin: 0; color: var(--ok-texto)">- {{ valorDescuento() | dinero }}</dd> }
+        <dt style="font-family: var(--fuente-titulo); font-size: 1.1rem; color: var(--tinta)">Total</dt>
+        <dd style="margin: 0; font-family: var(--fuente-titulo); font-size: 1.35rem; font-weight: 700; color: var(--tinta)">{{ total() | dinero }}</dd>
+      </dl>
+    </div>
+  }
+
+  @if (errorMsg()) {
+    <div class="error-alert" role="alert">{{ errorMsg() }}</div>
+  }
+
+  <div class="form-actions">
+    <button type="button" (click)="router.navigate(['/pedidos'])">Cancelar</button>
+    <button type="button" [disabled]="!puedeConfirmar()" (click)="confirmarPedido()">
+      {{ cargando() ? 'Creando pedido…' : 'Confirmar pedido' }}
+    </button>
+  </div>
+</div>
+
+@if (creandoCliente()) {
+  <app-cliente-form-modal [cliente]="{ nombre: textoCliente().trim() }" (guardado)="alCrearCliente($event)" (cerrar)="creandoCliente.set(false)" />
+}

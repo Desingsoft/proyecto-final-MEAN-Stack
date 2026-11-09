@@ -1,0 +1,83 @@
+<div class="login-container">
+  <section class="login-marca" aria-hidden="false">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+        <rect x="3" y="17" width="12" height="12" rx="2.5" fill="#f2b01e" />
+        <rect x="17" y="17" width="12" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.92" />
+        <rect x="10" y="3" width="12" height="12" rx="2.5" fill="#3fb8af" />
+      </svg>
+      Inventario PYME
+    </div>
+
+    <div>
+      <h1>Cada producto en su lugar.</h1>
+      <p>Controla tu inventario, atiende pedidos y anticipa lo que falta, todo desde un solo lugar.</p>
+    </div>
+
+    <!-- Estantería ilustrada -->
+    <svg class="estante" viewBox="0 0 560 330" aria-hidden="true">
+      <rect x="20" y="40" width="520" height="12" rx="3" fill="#254b50" />
+      <rect x="20" y="150" width="520" height="12" rx="3" fill="#254b50" />
+      <rect x="20" y="260" width="520" height="12" rx="3" fill="#254b50" />
+      <rect x="36" y="20" width="10" height="310" fill="#1a3a3e" />
+      <rect x="514" y="20" width="10" height="310" fill="#1a3a3e" />
+      <!-- fila 1 -->
+      <rect x="70" y="-4" width="90" height="44" rx="4" fill="#f2b01e" transform="translate(0 0)" />
+      <rect x="70" y="14" width="90" height="6" fill="#d89a0f" opacity="0.7" />
+      <rect x="172" y="8" width="70" height="32" rx="4" fill="#3fb8af" />
+      <rect x="254" y="-10" width="100" height="50" rx="4" fill="#e9eeed" />
+      <rect x="254" y="8" width="100" height="6" fill="#c5d2d0" />
+      <rect x="368" y="12" width="60" height="28" rx="4" fill="#0b7a75" />
+      <rect x="440" y="-2" width="64" height="42" rx="4" fill="#f2b01e" />
+      <!-- fila 2 -->
+      <rect x="64" y="94" width="110" height="56" rx="4" fill="#e9eeed" />
+      <rect x="64" y="114" width="110" height="6" fill="#c5d2d0" />
+      <rect x="188" y="106" width="76" height="44" rx="4" fill="#0b7a75" />
+      <rect x="278" y="84" width="92" height="66" rx="4" fill="#f2b01e" />
+      <rect x="278" y="106" width="92" height="6" fill="#d89a0f" opacity="0.7" />
+      <rect x="384" y="112" width="52" height="38" rx="4" fill="#3fb8af" />
+      <rect x="448" y="98" width="58" height="52" rx="4" fill="#e9eeed" />
+      <!-- fila 3 -->
+      <rect x="70" y="214" width="72" height="46" rx="4" fill="#3fb8af" />
+      <rect x="154" y="196" width="104" height="64" rx="4" fill="#f2b01e" />
+      <rect x="154" y="218" width="104" height="6" fill="#d89a0f" opacity="0.7" />
+      <rect x="270" y="222" width="64" height="38" rx="4" fill="#e9eeed" />
+      <rect x="346" y="202" width="96" height="58" rx="4" fill="#0b7a75" />
+      <rect x="454" y="216" width="50" height="44" rx="4" fill="#f2b01e" />
+    </svg>
+  </section>
+
+  <section class="login-formulario">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <h2>Iniciar sesión</h2>
+      <p class="intro">Ingresa con tu correo y contraseña.</p>
+
+      <label for="email">Correo electrónico</label>
+      <input id="email" type="email" formControlName="email" placeholder="correo@empresa.com" autocomplete="username" />
+      @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+        <span class="error">Escribe un correo válido</span>
+      }
+
+      <label for="password">Contraseña</label>
+      <div class="campo">
+        <input id="password" [type]="verPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
+        <button type="button" class="btn-icono" (click)="verPassword.set(!verPassword())" [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <app-icon [name]="verPassword() ? 'ojoTachado' : 'ojo'" [size]="18" />
+        </button>
+      </div>
+      @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+        <span class="error">La contraseña es obligatoria</span>
+      }
+
+      @if (errorMsg()) {
+        <div class="error-alert" role="alert">{{ errorMsg() }}</div>
+      }
+
+      <button type="submit" [disabled]="loginForm.invalid || cargando()">
+        {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+      <!-- Recuperación segura sin exponer si el correo está registrado. -->
+      <a href="/recuperar">¿Olvidaste tu contraseña?</a>
+    </form>
+  </section>
+</div>

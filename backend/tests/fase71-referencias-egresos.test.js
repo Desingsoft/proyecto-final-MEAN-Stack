@@ -1,0 +1,14 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarVinculosEgresos}=require('../utils/auditoriaEgresosHuerfanos');
+const {auditarEgresosOrden}=require('../utils/auditoriaEgresosCompras');
+const orden={_id:'o1',numero:'OC1',sucursal:'s1',proveedor:'p1',total:100,pagado:100,estado:'enviada'};
+const pago={_id:'e1',orden:'o1',tipo:'egreso',numero:'CE1',monto:100,estado:'vigente',sucursal:'s1',proveedor:'p1'};
+const codigos=r=>r.hallazgos.map(h=>h.codigo);
+test('primera pasada detecta egreso sin sucursal',()=>assert.ok(codigos(auditarEgresosOrden(orden,[{...pago,sucursal:null}])).includes('EGRESO_SIN_SUCURSAL')));
+test('primera pasada detecta egreso sin proveedor',()=>assert.ok(codigos(auditarEgresosOrden(orden,[{...pago,proveedor:null}])).includes('EGRESO_SIN_PROVEEDOR')));
+test('primera pasada no genera faltantes para vínculos completos',()=>assert.deepEqual(codigos(auditarEgresosOrden(orden,[pago])),[]));
+test('segunda pasada detecta ambos vínculos ausentes',()=>assert.deepEqual(codigos(auditarVinculosEgresos([{...pago,sucursal:null,proveedor:null}],[orden])),['EGRESO_SIN_SUCURSAL','EGRESO_SIN_PROVEEDOR']));
+test('segunda pasada evita duplicar hallazgos de orden ya conciliada',()=>assert.deepEqual(codigos(auditarVinculosEgresos([{...pago,sucursal:null,proveedor:null}],[orden],{ordenesConciliadas:new Set(['o1'])})),[]));
+test('no exige sucursal o proveedor cuando la orden tampoco los tiene',()=>assert.deepEqual(codigos(auditarVinculosEgresos([{...pago,sucursal:null,proveedor:null}],[{_id:'o1'}])),[]));
+test('referencia inexistente conserva su diagnóstico prioritario',()=>assert.deepEqual(codigos(auditarVinculosEgresos([{...pago,orden:'no-existe',sucursal:null}],[orden])),['EGRESO_ORDEN_INEXISTENTE']));

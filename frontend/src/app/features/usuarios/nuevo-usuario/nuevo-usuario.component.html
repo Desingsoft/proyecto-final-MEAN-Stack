@@ -1,0 +1,70 @@
+<a routerLink="/usuarios" class="volver"><app-icon name="atras" [size]="14" /> Volver a usuarios</a>
+
+<div class="form-container" style="margin-top: 0.75rem">
+  <h1>Crear nuevo usuario</h1>
+
+  <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="form-group">
+      <label for="nu-nombre">Nombre completo</label>
+      <input id="nu-nombre" [attr.aria-invalid]="usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched" type="text" formControlName="nombre" />
+    </div>
+
+    <div class="form-group">
+      <label for="nu-email">Correo electrónico</label>
+      <input id="nu-email" [attr.aria-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched" type="email" formControlName="email" />
+    </div>
+
+    <div class="form-group">
+      <label for="nu-pass">Contraseña temporal</label>
+      <div style="position: relative">
+        <input id="nu-pass" [attr.aria-invalid]="usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched" [type]="verPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" style="width: 100%; padding-right: 2.8rem" />
+        <button type="button" class="btn-icono" style="position: absolute; right: 3px; top: 3px" (click)="verPassword.set(!verPassword())" [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <app-icon [name]="verPassword() ? 'ojoTachado' : 'ojo'" [size]="17" />
+        </button>
+      </div>
+      <span class="ayuda">Mínimo 12 caracteres. La persona podrá cambiarla desde su perfil.</span>
+    </div>
+
+    <!-- Los tres campos se envían al backend y se validan nuevamente en el servidor. -->
+    <div class="form-group">
+      <label for="nu-nacimiento">Fecha de nacimiento</label>
+      <input id="nu-nacimiento" [attr.aria-invalid]="usuarioForm.get('fechaNacimiento')?.invalid && usuarioForm.get('fechaNacimiento')?.touched" type="date" formControlName="fechaNacimiento" autocomplete="bday" required />
+    </div>
+    <div class="form-group">
+      <label for="nu-sexo">Sexo</label>
+      <select id="nu-sexo" [attr.aria-invalid]="usuarioForm.get('sexo')?.invalid && usuarioForm.get('sexo')?.touched" formControlName="sexo" required>
+        <option value="prefiero_no_decir">Prefiero no decirlo</option>
+        <option value="femenino">Femenino</option>
+        <option value="masculino">Masculino</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="nu-ciudad">Ciudad</label>
+      <input id="nu-ciudad" [attr.aria-invalid]="usuarioForm.get('ciudad')?.invalid && usuarioForm.get('ciudad')?.touched" type="text" formControlName="ciudad" autocomplete="address-level2" maxlength="100" required />
+    </div>
+    <div class="form-group">
+      <label for="nu-rol">Rol</label>
+      <select id="nu-rol" [attr.aria-invalid]="usuarioForm.get('role')?.invalid && usuarioForm.get('role')?.touched" formControlName="role">
+        @for (rol of roles; track rol) { <option [value]="rol">{{ etiquetaRol[rol] }}</option> }
+      </select>
+      <span class="ayuda">{{ descripcionRol[rolSeleccionado()] }}</span>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="error-alert" role="alert">{{ errorMsg() }}</div>
+    }
+
+    <!-- Mensaje visible para lectores de pantalla cuando existen campos incorrectos. -->
+    @if (usuarioForm.invalid && usuarioForm.touched) {
+      <p class="form-error" role="alert">Revisa los campos obligatorios, el correo y la contraseña antes de continuar.</p>
+    }
+
+    <div class="form-actions">
+      <button type="button" (click)="router.navigate(['/usuarios'])">Cancelar</button>
+      <button type="submit" [disabled]="usuarioForm.invalid || cargando()">
+        {{ cargando() ? 'Creando…' : 'Crear usuario' }}
+      </button>
+    </div>
+  </form>
+</div>

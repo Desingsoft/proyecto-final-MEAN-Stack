@@ -1,0 +1,12 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {resumirPruebasNode}=require('../utils/resumenPruebasNode');
+const {evaluarPuertaCalidad}=require('../utils/evaluarPuertaCalidad');
+const tap='# tests 6\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 2\n# todo 0\n';
+test('lee correctamente pruebas aprobadas y omitidas',()=>{const r=resumirPruebasNode(tap,0).resumenPruebas;assert.equal(r.aprobadas,4);assert.equal(r.omitidas,2);assert.equal(r.valido,true)});
+test('rechaza un resumen TAP incompleto',()=>assert.equal(resumirPruebasNode('# pass 3',0).resumenPruebas.valido,false));
+test('rechaza conteos contradictorios',()=>assert.equal(resumirPruebasNode(tap.replace('tests 6','tests 7'),0).resumenPruebas.valido,false));
+test('rechaza código de salida no exitoso',()=>assert.equal(resumirPruebasNode(tap,1).resumenPruebas.valido,false));
+test('distingue omisiones de bloqueos de calidad',()=>{const r=evaluarPuertaCalidad([{nombre:'Pruebas automatizadas backend',estado:'correcto',obligatorio:true,resumenPruebas:resumirPruebasNode(tap,0).resumenPruebas}]);assert.equal(r.aprobado,true);assert.equal(r.advertencias.length,1);assert.equal(r.listoParaProduccion,false)});
+test('no aprueba si falta compilación obligatoria',()=>{const r=evaluarPuertaCalidad([{nombre:'Compilación Angular',estado:'no_disponible',obligatorio:true}]);assert.equal(r.aprobado,false);assert.equal(r.bloqueos.length,1)});
+test('no aprueba resultados sin resumen de pruebas',()=>assert.equal(evaluarPuertaCalidad([{nombre:'Pruebas automatizadas backend',estado:'correcto',obligatorio:true}]).aprobado,false));

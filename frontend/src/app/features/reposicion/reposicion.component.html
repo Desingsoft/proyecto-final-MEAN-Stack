@@ -1,0 +1,208 @@
+<header class="page-header">
+  <div>
+    <h1>Reposición</h1>
+    <p class="subtitulo">Productos en o por debajo de su stock mínimo. La cantidad sugerida los lleva al doble del mínimo; puedes ajustarla antes de armar tu lista de compra.</p>
+  </div>
+  @if (filas().length > 0) {
+    <div class="page-header-acciones">
+      <button type="button" class="btn-secondary" (click)="exportarComo('excel')" [disabled]="exportando()">
+        <app-icon name="excel" [size]="16" /> Excel
+      </button>
+      <button type="button" class="btn-secondary" (click)="exportarComo('pdf')" [disabled]="exportando()">
+        <app-icon name="pdf" [size]="16" /> {{ exportando() ? 'Generando…' : 'PDF' }}
+      </button>
+      <button type="button" class="btn-primary" (click)="crearOrdenes()" [disabled]="creandoOrdenes()" title="Crea un borrador de orden por cada proveedor con los productos marcados">
+        <app-icon name="camion" [size]="16" /> {{ creandoOrdenes() ? 'Creando…' : 'Crear órdenes de compra' }}
+      </button>
+    </div>
+  }
+</header>
+
+@if (cargando()) {
+  <div class="kpis">
+    @for (i of [1, 2, 3, 4]; track i) { <div class="skeleton" style="height: 96px"></div> }
+  </div>
+  <div class="skeleton" style="height: 340px"></div>
+} @else if (error()) {
+  <div class="panel vacio">
+    <span class="icono-vacio"><app-icon name="alerta" [size]="26" /></span>
+    <strong>No pudimos cargar la reposición</strong>
+    <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (filas().length === 0) {
+  <div class="panel vacio">
+    <span class="icono-vacio"><app-icon name="check" [size]="26" /></span>
+    <strong>No hay nada por reponer</strong>
+    <p>Todos tus productos están por encima de su stock mínimo.</p>
+    <a routerLink="/productos" class="btn-secondary">Ver productos</a>
+  </div>
+} @else {
+  <div class="kpis">
+    <div class="kpi">
+      <span class="kpi-etiqueta">Por reponer</span>
+      <span class="kpi-valor">{{ conteos().todos }}</span>
+      <span class="kpi-pie">productos en o bajo su mínimo</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Agotados</span>
+      <span class="kpi-valor" style="color: var(--agotado)">{{ conteos().agotado }}</span>
+      <span class="kpi-pie">sin unidades disponibles</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Críticos</span>
+      <span class="kpi-valor" style="color: var(--critico)">{{ conteos().critico }}</span>
+      <span class="kpi-pie">con la mitad del mínimo o menos</span>
+    </div>
+    <div class="kpi acento">
+      <span class="kpi-etiqueta">Lista de compra</span>
+      <span class="kpi-valor">{{ inversion() | dinero:true }}</span>
+      <span class="kpi-pie">{{ seleccionadas().length }} productos y {{ unidades() }} unidades</span>
+    </div>
+  </div>
+
+  <section class="panel panel-flush">
+    <div class="barra-filtros" style="padding: 1rem 1.25rem 0; margin-bottom: 0.75rem">
+      <div class="filtro-chips" role="group" aria-label="Nivel de stock">
+        <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === 'todos'" (click)="filtroNivel.set('todos')">
+          Todos <span class="conteo">{{ conteos().todos }}</span>
+        </button>
+        <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === 'agotado'" (click)="filtroNivel.set('agotado')">
+          Agotados <span class="conteo">{{ conteos().agotado }}</span>
+        </button>
+        <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === 'critico'" (click)="filtroNivel.set('critico')">
+          Críticos <span class="conteo">{{ conteos().critico }}</span>
+        </button>
+        <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === 'bajo'" (click)="filtroNivel.set('bajo')">
+          Bajos <span class="conteo">{{ conteos().bajo }}</span>
+        </button>
+      </div>
+
+      <label>
+        <span class="sr-only">Proveedor</span>
+        <select [ngModel]="filtroProveedor()" (ngModelChange)="filtroProveedor.set($event)">
+          <option value="">Todos los proveedores</option>
+          @for (p of proveedores(); track p) { <option [value]="p">{{ p }}</option> }
+        </select>
+      </label>
+
+      <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.88rem">
+        <span class="switch">
+          <input type="checkbox" [checked]="agrupar()" (change)="agrupar.set(!agrupar())" />
+          <span class="pista"></span>
+        </span>
+        Agrupar por proveedor
+      </label>
+
+    </div>
+
+    @if (visibles().length === 0) {
+      <p class="sin-datos">Ningún producto coincide con estos filtros.</p>
+    }
+
+    @for (grupo of grupos(); track grupo.nombre) {
+      @if (grupo.nombre) {
+        <div class="grupo-proveedor-cabecera">
+          <strong>{{ grupo.nombre }}</strong>
+          <span class="meta">{{ grupo.filas.length }} productos, compra estimada {{ subtotalGrupo(grupo.filas) | dinero }}</span>
+        </div>
+      }
+      <div class="tabla-wrap" style="margin: 0; padding: 0 0.5rem">
+        <table class="tabla-fija">
+          <colgroup>
+            <col style="width: 46px" /><col /><col style="width: 210px" /><col style="width: 110px" />
+            <col style="width: 140px" /><col style="width: 130px" /><col style="width: 130px" /><col style="width: 120px" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" [checked]="todasMarcadas()" (change)="marcarTodas($any($event.target).checked)" aria-label="Marcar todos" />
+              </th>
+              <th>Producto</th>
+              <th>Stock actual</th>
+              <th>Nivel</th>
+              <th class="num">Cantidad a pedir</th>
+              <th class="num">Costo unitario</th>
+              <th class="num">Subtotal</th>
+              <th><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of grupo.filas; track fila._id) {
+              <tr [style.opacity]="fila.seleccionado ? 1 : 0.55">
+                <td>
+                  <input type="checkbox" [checked]="fila.seleccionado" (change)="actualizarFila(fila._id, { seleccionado: $any($event.target).checked })" [attr.aria-label]="'Incluir ' + fila.nombre" />
+                </td>
+                <td>
+                  <span class="celda-doble">
+                    <span class="principal">{{ fila.nombre }}</span>
+                    <span class="secundaria"><span class="codigo">{{ fila.sku }}</span>@if (!grupo.nombre && fila.proveedor) { &nbsp;de {{ fila.proveedor.nombre }} }</span>
+                  </span>
+                </td>
+                <td>
+                  <app-stock-meter [stock]="fila.stock" [minimo]="fila.stockMinimo" />
+                  <span style="font-size: 0.75rem; color: var(--texto-tenue)">mínimo {{ fila.stockMinimo }}</span>
+                </td>
+                <td><span [class]="'chip ' + chipNivel[fila.nivel]">{{ etiquetaNivel[fila.nivel] }}</span></td>
+                <td class="num">
+                  <input
+                    type="number" min="0" step="1" class="cantidad-pedir"
+                    [ngModel]="fila.pedir" (ngModelChange)="cambiarCantidad(fila, $event)"
+                    [attr.aria-label]="'Cantidad a pedir de ' + fila.nombre"
+                  />
+                </td>
+                <td class="num">{{ fila.costo | dinero }}</td>
+                <td class="num"><strong>{{ fila.pedir * fila.costo | dinero }}</strong></td>
+                <td>
+                  <button type="button" class="btn-secondary btn-sm" (click)="abrirEntrada(fila)" title="Registrar la llegada de mercancía">
+                    <app-icon name="entrada" [size]="15" /> Recibir
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+@if (filaEntrada(); as fila) {
+  <app-modal titulo="Registrar entrada de mercancía" [descripcion]="fila.nombre" (cerrar)="cerrarEntrada()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cant-entrada">Unidades recibidas</label>
+        <input id="cant-entrada" type="number" min="1" step="1" [ngModel]="cantidadEntrada()" (ngModelChange)="cantidadEntrada.set($event)" (keydown.enter)="confirmarEntrada()" />
+      </div>
+      <div class="form-group">
+        <label for="motivo-entrada">Motivo</label>
+        <select id="motivo-entrada" [ngModel]="motivoEntrada()" (ngModelChange)="motivoEntrada.set($event)">
+          <option value="compra">Compra a proveedor</option>
+          <option value="ajuste">Ajuste de inventario</option>
+          <option value="devolución">Devolución</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="bodega-entrada">Bodega de destino</label>
+      <select id="bodega-entrada" [ngModel]="bodegaEntrada()" (ngModelChange)="bodegaEntrada.set($event)">
+        <option value="">Selecciona una bodega</option>
+        @for (bodega of bodegasEntrada(); track bodega._id) {
+          <option [value]="bodega._id">{{ bodega.nombre }}</option>
+        }
+      </select>
+      @if (errorBodegas()) { <p role="alert">{{ errorBodegas() }}</p> }
+    </div>
+    <div class="panel sin-margen" style="background: var(--superficie-2); display: flex; align-items: center; justify-content: space-between; gap: 1rem">
+      <span>Stock actual <strong>{{ fila.stock }}</strong> → <strong>{{ stockResultante() }}</strong></span>
+      <span [class]="'chip ' + chipNivel[nivelStock(stockResultante(), fila.stockMinimo)]">
+        {{ etiquetaNivel[nivelStock(stockResultante(), fila.stockMinimo)] }}
+      </span>
+    </div>
+    <div pie>
+      <button type="button" class="btn-secondary" (click)="cerrarEntrada()" [disabled]="guardando()">Cancelar</button>
+      <button type="button" class="btn-primary" (click)="confirmarEntrada()" [disabled]="guardando() || !(cantidadEntrada() > 0) || !bodegaEntrada()">
+        {{ guardando() ? 'Guardando…' : 'Registrar entrada' }}
+      </button>
+    </div>
+  </app-modal>
+}

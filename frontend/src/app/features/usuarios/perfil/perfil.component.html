@@ -1,0 +1,73 @@
+<header class="page-header">
+  <div>
+    <h1>Mi perfil</h1>
+    <p class="subtitulo">Tus datos de acceso y la seguridad de tu cuenta.</p>
+  </div>
+</header>
+
+<div class="grid-2" style="align-items: start">
+  <section class="panel">
+    @if (perfil(); as p) {
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem">
+        <span [class]="'avatar grande rol-' + p.role">{{ iniciales() }}</span>
+        <div>
+          <h2 style="font-size: 1.35rem">{{ p.nombre }}</h2>
+          <p style="color: var(--texto-suave)">{{ p.email }}</p>
+        </div>
+      </div>
+      <div style="padding: 1rem; background: var(--superficie-2); border-radius: var(--radio-sm); border: 1px solid var(--linea)">
+        <span class="chip chip-primario">{{ etiquetaRol[p.role] }}</span>
+        <p style="margin-top: 0.6rem; font-size: 0.9rem; color: var(--texto-suave)">{{ descripcionRol[p.role] }}</p>
+      </div>
+    } @else {
+      <div class="skeleton" style="height: 150px"></div>
+    }
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Cambiar contraseña</h2>
+        <p class="nota">Usa una contraseña que no emplees en otros sitios.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="form-group">
+        <label for="p-actual">Contraseña actual</label>
+        <input id="p-actual" [type]="verPassword() ? 'text' : 'password'" formControlName="passwordActual" autocomplete="current-password" />
+      </div>
+      <div class="form-group">
+        <label for="p-nueva">Contraseña nueva</label>
+        <input id="p-nueva" [type]="verPassword() ? 'text' : 'password'" formControlName="passwordNueva" autocomplete="new-password" />
+        <div style="display: flex; align-items: center; gap: 0.6rem">
+          <div style="display: flex; gap: 4px; flex: 1">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <span style="height: 5px; flex: 1; border-radius: 3px; transition: background 0.2s"
+                [style.background]="fuerza() >= i ? (fuerza() <= 1 ? 'var(--agotado)' : fuerza() === 2 ? 'var(--aviso)' : 'var(--ok)') : '#e6ecea'"></span>
+            }
+          </div>
+          <span style="font-size: 0.78rem; color: var(--texto-suave); min-width: 5rem; text-align: right">{{ form.value.passwordNueva ? etiquetaFuerza() : '' }}</span>
+        </div>
+        <span class="ayuda">Mínimo 6 caracteres. Mezcla mayúsculas, números y símbolos para mayor seguridad.</span>
+      </div>
+      <div class="form-group">
+        <label for="p-confirmar">Confirma la contraseña nueva</label>
+        <input id="p-confirmar" [type]="verPassword() ? 'text' : 'password'" formControlName="confirmar" autocomplete="new-password" />
+        @if (noCoinciden()) { <span class="error">Las contraseñas no coinciden</span> }
+      </div>
+
+      <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--texto-suave); cursor: pointer">
+        <input type="checkbox" [checked]="verPassword()" (change)="verPassword.set(!verPassword())" /> Mostrar contraseñas
+      </label>
+
+      @if (errorMsg()) { <div class="error-alert" role="alert">{{ errorMsg() }}</div> }
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="form.invalid || noCoinciden() || guardando()">
+          {{ guardando() ? 'Guardando…' : 'Actualizar contraseña' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

@@ -1,0 +1,154 @@
+<div class="barra-filtros" style="justify-content: space-between">
+  <app-rango-fechas (cambio)="onRango($event)" />
+  <span style="display: flex; gap: 0.5rem">
+    <button type="button" class="btn-secondary btn-sm" (click)="exportarComo('excel')" [disabled]="!datos() || exportando()"><app-icon name="excel" [size]="16" /> Excel</button>
+    <button type="button" class="btn-primary btn-sm" (click)="exportarComo('pdf')" [disabled]="!datos() || exportando()"><app-icon name="pdf" [size]="16" /> {{ exportando() ? 'Generando…' : 'PDF' }}</button>
+  </span>
+</div>
+
+@if (error()) {
+  <div class="error-alert" role="alert">{{ error() }}</div>
+}
+
+@if (cargando() && !datos()) {
+  <div class="kpis">@for (i of [1, 2, 3, 4, 5]; track i) { <div class="skeleton" style="height: 112px"></div> }</div>
+  <div class="skeleton" style="height: 320px"></div>
+} @else {
+  @if (datos(); as d) {
+  <div class="kpis" [style.opacity]="cargando() ? 0.6 : 1" style="transition: opacity 0.15s">
+    <div class="kpi">
+      <span class="kpi-etiqueta">Ventas del periodo</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.ventas | dinero)">{{ d.resumen.ventas | dinero:true }}</span>
+      <span class="kpi-pie">
+        @if (variacion(); as v) {
+          <span [class]="'delta ' + v.clase"><app-icon [name]="v.icono" [size]="13" [trazo]="2.4" />{{ v.texto }}</span> frente a los {{ d.rango.dias }} días previos
+        } @else { Sin periodo previo para comparar }
+      </span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Pedidos</span>
+      <span class="kpi-valor">{{ d.resumen.pedidos }}</span>
+      <span class="kpi-pie">{{ d.resumen.cancelados }} cancelados (no cuentan como venta)</span>
+    </div>
+    @if ((d.resumen.devoluciones ?? 0) > 0) {
+      <div class="kpi">
+        <span class="kpi-etiqueta">Devoluciones</span>
+        <span class="kpi-valor" style="color: var(--critico-texto)" [attr.title]="((d.resumen.devoluciones ?? 0) | dinero)">{{ (d.resumen.devoluciones ?? 0) | dinero:true }}</span>
+        <span class="kpi-pie">{{ d.resumen.devolucionesCantidad }} devoluciones; las ventas ya van netas</span>
+      </div>
+    }
+    <div class="kpi">
+      <span class="kpi-etiqueta">Ticket promedio</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.ticketPromedio | dinero)">{{ d.resumen.ticketPromedio | dinero:true }}</span>
+      <span class="kpi-pie">{{ d.resumen.unidades }} unidades vendidas</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Margen estimado</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.margenEstimado | dinero)">{{ d.resumen.margenEstimado | dinero:true }}</span>
+      <span class="kpi-pie">{{ margenPorcentaje().toLocaleString('es-CO', { maximumFractionDigits: 1 }) }} % de las ventas, con el costo actual</span>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Ventas por día</h2>
+        <p class="nota">Del {{ d.rango.desde }} al {{ d.rango.hasta }}</p>
+      </div>
+    </div>
+    <app-grafico-series [etiquetas]="etiquetas()" [claves]="claves()" [series]="series()" [formato]="formatoDinero" [formatoEje]="formatoEje" [altura]="280" descripcion="Ventas diarias" />
+  </section>
+
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-header">
+        <div><h2>Productos que más venden</h2><p class="nota">Ordenados por ingresos</p></div>
+        @if (d.porProducto.length > 8) {
+          <button type="button" class="btn-ghost btn-sm" (click)="verTodosProductos.set(!verTodosProductos())">{{ verTodosProductos() ? 'Ver menos' : 'Ver los ' + d.porProducto.length }}</button>
+        }
+      </div>
+      @if (d.porProducto.length === 0) {
+        <p class="sin-datos">No hubo ventas en este periodo.</p>
+      } @else {
+        <div class="tabla-wrap">
+          <table>
+            <thead><tr><th>Producto</th><th class="num">Unidades</th><th class="num">Ingresos</th><th class="num">Margen</th></tr></thead>
+            <tbody>
+              @for (p of productosVisibles(); track p.sku) {
+                <tr>
+                  <td><span class="celda-doble"><span class="principal">{{ p.nombre }}</span><span class="secundaria codigo">{{ p.sku }}</span></span></td>
+                  <td class="num">{{ p.unidades }}</td>
+                  <td class="num">{{ p.ingresos | dinero }}</td>
+                  <td class="num" [style.color]="p.margen < 0 ? 'var(--agotado)' : 'inherit'">{{ p.margen | dinero }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <div>
+      <section class="panel">
+        <div class="panel-header"><div><h2>Pedidos por estado</h2><p class="nota">Toca un estado para filtrar la tabla de abajo</p></div></div>
+        <app-grafico-dona [segmentos]="segmentos()" textoTotal="pedidos" descripcion="Pedidos por estado" (seleccion)="cambiarFiltro($event)" />
+      </section>
+
+      @if (d.porVendedor.length > 0) {
+        <section class="panel">
+          <div class="panel-header"><div><h2>Ventas por vendedor</h2></div></div>
+          <ul class="hbars">
+            @for (v of d.porVendedor; track v.nombre) {
+              <li class="hbar-fila">
+                <span class="hbar-nombre">{{ v.nombre }}</span>
+                <span class="hbar-valor">{{ v.ventas | dinero:true }}</span>
+                <span class="hbar-pista"><span class="hbar-relleno" [style.width.%]="porcentajeVendedor(v.ventas)"></span></span>
+                <span class="hbar-detalle">{{ v.pedidos }} pedidos</span>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div><h2>Detalle de pedidos</h2><p class="nota">{{ pedidosFiltrados().length }} pedidos @if (d.truncado) { (se muestran los 1.000 más recientes; el resumen incluye todos) }</p></div>
+    </div>
+    <div class="filtro-chips" style="margin-bottom: 1rem">
+      <button type="button" class="filtro-chip" [class.activo]="filtroEstado() === ''" (click)="cambiarFiltro('')">Todos</button>
+      @for (e of estados; track e) {
+        <button type="button" class="filtro-chip" [class.activo]="filtroEstado() === e" (click)="cambiarFiltro(e)" style="text-transform: capitalize">{{ e }}</button>
+      }
+    </div>
+
+    @if (pedidosFiltrados().length === 0) {
+      <p class="sin-datos">No hay pedidos con este filtro.</p>
+    } @else {
+      <div class="tabla-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Cliente</th><th>Estado</th><th class="num">Unidades</th><th class="num">Total</th><th>Vendedor</th></tr></thead>
+          <tbody>
+            @for (p of pedidosPagina(); track p._id) {
+              <tr>
+                <td>{{ p.fecha | date:'d MMM y, h:mm a' }}</td>
+                <td><a [routerLink]="['/pedidos', p._id]">{{ p.cliente }}</a></td>
+                <td><span [class]="'badge ' + (claseEstado[p.estado] || 'badge-secondary')">{{ p.estado }}</span></td>
+                <td class="num">{{ p.unidades }}</td>
+                <td class="num">{{ p.total | dinero }}</td>
+                <td>{{ p.vendedor || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="paginacion">
+        <button type="button" (click)="pagina.set(pagina() - 1)" [disabled]="pagina() === 1">Anterior</button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+        <button type="button" (click)="pagina.set(pagina() + 1)" [disabled]="pagina() === totalPaginas()">Siguiente</button>
+      </div>
+    }
+  </section>
+}
+}

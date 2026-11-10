@@ -1,0 +1,79 @@
+<div class="login-container login-v2">
+  <section class="login-marca">
+    <div class="login-overlay"></div>
+    <div class="login-logo">
+      <span class="login-logomark">▦</span>
+      <span>Inventario <strong>PYME</strong></span>
+    </div>
+    <div class="login-copy">
+      <span class="login-eyebrow">GESTIÓN INTELIGENTE DE INVENTARIO</span>
+      <h1>Cada producto<br><em>en su lugar.</em></h1>
+      <p>Controla tu inventario, atiende pedidos y anticipa lo que falta, todo desde un solo lugar.</p>
+      <div class="login-benefits"><span>✓ Inventario en tiempo real</span><span>✓ Pedidos organizados</span><span>✓ Reportes claros</span></div>
+    </div>
+    <span class="login-foot">INVENTARIO PYME · PLATAFORMA DE GESTIÓN</span>
+  </section>
+  <section class="login-formulario">
+    <div class="login-card">
+      <div class="login-tabs">
+        <button type="button" [class.active]="!modoRegistro()" (click)="cambiarModo(false)">Iniciar sesión</button>
+        <button type="button" [class.active]="modoRegistro()" (click)="cambiarModo(true)">Crear usuario</button>
+      </div>
+      @if (!modoRegistro()) {
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+          <span class="login-kicker">BIENVENIDO DE NUEVO</span>
+          <h2>Iniciar sesión</h2>
+          <p class="intro">Accede a tu espacio de trabajo.</p>
+          @if (registroExitoso()) { <div class="login-success" role="status">{{ registroExitoso() }}</div> }
+          <label for="email">Correo electrónico</label>
+          <input id="email" type="email" formControlName="email" placeholder="nombre@empresa.com" autocomplete="username"/>
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) { <span class="error">Ingresa un correo electrónico válido.</span> }
+          <label for="password">Contraseña</label>
+          <div class="campo">
+            <input id="password" [type]="verPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password"/>
+            <button type="button" class="btn-icono" (click)="verPassword.set(!verPassword())" [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <app-icon [name]="verPassword() ? 'ojoTachado' : 'ojo'" [size]="18"/>
+            </button>
+          </div>
+          @if (errorMsg()) { <div class="error-alert" role="alert">{{ errorMsg() }}</div> }
+          <button type="submit" [disabled]="loginForm.invalid || cargando()">{{ cargando() ? 'Ingresando…' : 'Ingresar' }}</button>
+          <a class="login-recover" href="/recuperar">¿Olvidaste tu contraseña?</a>
+          <div class="login-divider"><span>¿Aún no tienes cuenta?</span></div>
+          <button class="login-secondary" type="button" (click)="cambiarModo(true)">Crear nuevo usuario</button>
+        </form>
+      } @else {
+        <form [formGroup]="registroForm" (ngSubmit)="registrar()" novalidate>
+          <span class="login-kicker">ÚNETE AL EQUIPO</span>
+          <h2>Crear usuario</h2>
+          <p class="intro">Completa tus datos para solicitar una cuenta operativa.</p>
+          <label for="reg-nombre">Nombre completo</label>
+          <input id="reg-nombre" formControlName="nombre" placeholder="Nombre y apellido" autocomplete="name"/>
+          @if (registroForm.get('nombre')?.touched && registroForm.get('nombre')?.invalid) { <span class="error">El nombre debe tener mínimo 2 caracteres.</span> }
+          <label for="reg-email">Correo electrónico</label>
+          <input id="reg-email" type="email" formControlName="email" placeholder="nombre@empresa.com" autocomplete="email"/>
+          @if (registroForm.get('email')?.touched && registroForm.get('email')?.invalid) { <span class="error">Incluye un correo válido con &#64; y dominio.</span> }
+          <div class="login-form-grid">
+            <div><label for="reg-fecha">Fecha de nacimiento</label><input id="reg-fecha" type="date" formControlName="fechaNacimiento"/>
+            @if (registroForm.get('fechaNacimiento')?.touched && registroForm.get('fechaNacimiento')?.invalid) { <span class="error">Selecciona una fecha válida.</span> }</div>
+            <div><label for="reg-edad">Edad</label><input id="reg-edad" type="number" min="2" max="120" formControlName="edad" placeholder="Edad"/>
+            @if (registroForm.get('edad')?.touched && registroForm.get('edad')?.invalid) { <span class="error">La edad debe ser mayor a 1.</span> }</div>
+            <div><label for="reg-sexo">Género</label><select id="reg-sexo" formControlName="sexo">
+              <option value="">Selecciona</option><option value="femenino">Femenino</option><option value="masculino">Masculino</option><option value="otro">Otro</option><option value="prefiero_no_decir">Prefiero no decir</option>
+            </select></div>
+            <div><label for="reg-role">Rol</label><select id="reg-role" formControlName="role">
+              <option value="ventas">Ventas</option><option value="bodeguero">Bodeguero</option>
+            </select></div>
+          </div>
+          <p class="login-hint">El rol administrador se asigna únicamente desde una cuenta administradora.</p>
+          <label for="reg-password">Contraseña</label>
+          <input id="reg-password" type="password" formControlName="password" autocomplete="new-password" placeholder="Crea una contraseña segura"/>
+          <p class="login-hint">Mínimo 12 caracteres, mayúscula, minúscula, número y símbolo especial.</p>
+          @if (registroForm.get('password')?.touched && registroForm.get('password')?.invalid) { <span class="error">La contraseña no cumple los requisitos de seguridad.</span> }
+          @if (errorMsg()) { <div class="error-alert" role="alert">{{ errorMsg() }}</div> }
+          <button type="submit" [disabled]="cargando()">{{ cargando() ? 'Creando cuenta…' : 'Crear mi cuenta' }}</button>
+          <button class="login-secondary" type="button" (click)="cambiarModo(false)">Ya tengo cuenta · Iniciar sesión</button>
+        </form>
+      }
+    </div>
+  </section>
+</div>

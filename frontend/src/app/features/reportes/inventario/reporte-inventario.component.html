@@ -1,0 +1,122 @@
+<div class="barra-filtros" style="justify-content: flex-end">
+  <button type="button" class="btn-secondary btn-sm" (click)="exportarComo('excel')" [disabled]="!datos() || exportando()"><app-icon name="excel" [size]="16" /> Excel</button>
+  <button type="button" class="btn-primary btn-sm" (click)="exportarComo('pdf')" [disabled]="!datos() || exportando()"><app-icon name="pdf" [size]="16" /> {{ exportando() ? 'Generando…' : 'PDF' }}</button>
+</div>
+
+@if (cargando()) {
+  <div class="kpis">@for (i of [1, 2, 3, 4]; track i) { <div class="skeleton" style="height: 112px"></div> }</div>
+  <div class="skeleton" style="height: 320px"></div>
+} @else if (error()) {
+  <div class="panel vacio">
+    <span class="icono-vacio"><app-icon name="alerta" [size]="26" /></span>
+    <strong>No pudimos generar el reporte</strong>
+    <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else {
+  @if (datos(); as d) {
+  <div class="kpis">
+    <div class="kpi">
+      <span class="kpi-etiqueta">Productos activos</span>
+      <span class="kpi-valor">{{ d.resumen.productos }}</span>
+      <span class="kpi-pie">{{ d.resumen.unidades }} unidades en bodega</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Valor a costo</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.valorCosto | dinero)">{{ d.resumen.valorCosto | dinero:true }}</span>
+      <span class="kpi-pie">lo que te costó lo que tienes</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-etiqueta">Valor a precio de venta</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.valorVenta | dinero)">{{ d.resumen.valorVenta | dinero:true }}</span>
+      <span class="kpi-pie">si lo vendieras todo</span>
+    </div>
+    <div class="kpi acento">
+      <span class="kpi-etiqueta">Margen potencial</span>
+      <span class="kpi-valor" [attr.title]="(d.resumen.margenPotencial | dinero)">{{ d.resumen.margenPotencial | dinero:true }}</span>
+      <span class="kpi-pie">diferencia entre venta y costo</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-header"><div><h2>Salud del inventario</h2><p class="nota">Toca un nivel para filtrar la tabla</p></div></div>
+      <app-grafico-dona [segmentos]="segmentos()" textoTotal="productos" descripcion="Productos por nivel de stock" (seleccion)="filtroNivel.set($any($event)); alFiltrar()" />
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><div><h2>Valor por categoría</h2><p class="nota">Capital invertido (a costo)</p></div></div>
+      <ul class="hbars">
+        @for (c of d.porCategoria; track c.categoria) {
+          <li class="hbar-fila">
+            <span class="hbar-nombre">{{ c.categoria }}</span>
+            <span class="hbar-valor">{{ c.valorCosto | dinero:true }}</span>
+            <span class="hbar-pista"><span class="hbar-relleno" [style.width.%]="porcentajeCategoria(c.valorCosto)"></span></span>
+            <span class="hbar-detalle">{{ c.productos }} productos, {{ c.unidades }} unidades</span>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="barra-filtros">
+      <label class="buscador">
+        <span class="sr-only">Buscar</span>
+        <app-icon name="buscar" [size]="17" />
+        <input type="search" placeholder="Buscar por nombre o SKU" [ngModel]="buscar()" (ngModelChange)="buscar.set($event); alFiltrar()" />
+      </label>
+      <div class="filtro-chips" role="group" aria-label="Nivel">
+        <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === ''" (click)="filtroNivel.set(''); alFiltrar()">Todos</button>
+        @for (n of niveles; track n) {
+          <button type="button" class="filtro-chip" [class.activo]="filtroNivel() === n" (click)="filtroNivel.set(n); alFiltrar()">
+            {{ etiquetaNivel[n] }} <span class="conteo">{{ d.resumen.porNivel[n] }}</span>
+          </button>
+        }
+      </div>
+      <label>
+        <span class="sr-only">Categoría</span>
+        <select [ngModel]="filtroCategoria()" (ngModelChange)="filtroCategoria.set($event); alFiltrar()">
+          <option value="">Todas las categorías</option>
+          @for (c of categorias(); track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
+    </div>
+
+    @if (filas().length === 0) {
+      <p class="sin-datos">Ningún producto coincide con estos filtros.</p>
+    } @else {
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="ordenable" [class.activo]="orden().columna === 'nombre'" (click)="ordenarPor('nombre')">Producto <span class="flecha">{{ flecha('nombre') }}</span></th>
+              <th class="ordenable" [class.activo]="orden().columna === 'categoria'" (click)="ordenarPor('categoria')">Categoría <span class="flecha">{{ flecha('categoria') }}</span></th>
+              <th class="ordenable" [class.activo]="orden().columna === 'stock'" (click)="ordenarPor('stock')">Stock <span class="flecha">{{ flecha('stock') }}</span></th>
+              <th>Nivel</th>
+              <th class="num ordenable" [class.activo]="orden().columna === 'valorCosto'" (click)="ordenarPor('valorCosto')">Valor a costo <span class="flecha">{{ flecha('valorCosto') }}</span></th>
+              <th class="num ordenable" [class.activo]="orden().columna === 'valorVenta'" (click)="ordenarPor('valorVenta')">Valor a venta <span class="flecha">{{ flecha('valorVenta') }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filasPagina(); track p._id) {
+              <tr>
+                <td><span class="celda-doble"><span class="principal">{{ p.nombre }}</span><span class="secundaria codigo">{{ p.sku }}</span></span></td>
+                <td>{{ p.categoria || '—' }}</td>
+                <td><app-stock-meter [stock]="p.stock" [minimo]="p.stockMinimo" /></td>
+                <td><span [class]="'chip ' + chipNivel[p.nivel]">{{ etiquetaNivel[p.nivel] }}</span></td>
+                <td class="num">{{ p.valorCosto | dinero }}</td>
+                <td class="num">{{ p.valorVenta | dinero }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="paginacion">
+        <button type="button" (click)="pagina.set(pagina() - 1)" [disabled]="pagina() === 1">Anterior</button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}, {{ filas().length }} productos</span>
+        <button type="button" (click)="pagina.set(pagina() + 1)" [disabled]="pagina() === totalPaginas()">Siguiente</button>
+      </div>
+    }
+  </section>
+}
+}

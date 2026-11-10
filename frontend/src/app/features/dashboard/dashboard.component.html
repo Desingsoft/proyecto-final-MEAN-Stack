@@ -1,0 +1,291 @@
+<header class="page-header">
+  <div>
+    <h1>{{ saludo }}, {{ nombre() }}</h1>
+    <p class="subtitulo">{{ fechaHoy }}</p>
+  </div>
+  <div class="page-header-acciones">
+    <div class="filtro-chips" role="group" aria-label="Periodo de análisis">
+      @for (p of periodos; track p) {
+        <button type="button" class="filtro-chip" [class.activo]="dias() === p" (click)="cambiarPeriodo(p)">{{ p }} días</button>
+      }
+    </div>
+    @if (tiempoReal.conectado()) {
+      <span class="vivo" title="Los datos se actualizan solos cuando algo cambia"><i></i>En vivo</span>
+    }
+    <button type="button" class="btn-secondary btn-sm" (click)="cargar(true)" [disabled]="actualizando()" title="Actualizar datos">
+      <app-icon name="refrescar" [size]="16" [class.girando]="actualizando()" />
+      @if (hace()) { <span>Actualizado {{ hace() }}</span> } @else { <span>Actualizar</span> }
+    </button>
+  </div>
+</header>
+
+@if (cargando()) {
+  <div class="skeleton" style="height: 190px; margin-bottom: 1.25rem"></div>
+  <div class="kpis">
+    @for (i of [1, 2, 3, 4]; track i) { <div class="skeleton" style="height: 112px"></div> }
+  </div>
+  <div class="skeleton" style="height: 340px"></div>
+} @else if (error()) {
+  <div class="panel vacio">
+    <span class="icono-vacio"><app-icon name="alerta" [size]="26" /></span>
+    <strong>No pudimos cargar el panel</strong>
+    <p>Revisa que el servidor esté en marcha e inténtalo de nuevo.</p>
+    <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+  </div>
+} @else {
+  @if (datos(); as d) {
+  <!-- Cinta de estado del inventario -->
+  <section class="panel" aria-labelledby="titulo-cinta">
+    <div class="panel-header" style="margin-bottom: 0">
+      <div>
+        <h2 id="titulo-cinta">Estado del inventario</h2>
+        <p class="nota">{{ d.kpis.productosActivos }} productos activos y {{ d.kpis.unidadesEnStock }} unidades en bodega</p>
+      </div>
+      @if (d.kpis.productosEnAlerta > 0) {
+        <a [routerLink]="puedeReponer() ? '/reposicion' : '/productos'" [queryParams]="puedeReponer() ? null : { estado: 'bajo' }">
+          {{ puedeReponer() ? 'Ir a reposición' : 'Ver productos con alerta' }}
+        </a>
+      }
+    </div>
+
+    <div class="cinta" role="group" aria-label="Distribución de productos por nivel de stock">
+      @for (s of cinta(); track s.nivel) {
+        <button
+          type="button"
+          class="cinta-seg"
+          [class]="'cinta-seg s-' + s.nivel + (s.cantidad === 0 ? ' vacio-seg' : '')"
+          [style.--peso]="s.cantidad"
+          (click)="irANivel(s.nivel)"
+          [attr.title]="s.cantidad + ' ' + s.texto.toLowerCase()"
+        >
+          <span class="n">{{ s.cantidad }}</span>
+          <span class="t">{{ s.texto }}</span>
+        </button>
+      }
+    </div>
+    <div class="cinta-leyenda">
+      <span><i style="background: var(--ok)"></i>Saludable: por encima del mínimo</span>
+      <span><i style="background: var(--aviso)"></i>Bajo: en el mínimo o menos</span>
+      <span><i style="background: var(--critico)"></i>Crítico: la mitad del mínimo o menos</span>
+      <span><i style="background: var(--agotado)"></i>Agotado: sin unidades</span>
+    </div>
+  </section>
+
+  <!-- Indicadores -->
+  <div class="kpis">
+    @if (verVentas()) {
+      <div class="kpi">
+        <span class="kpi-etiqueta">Ventas de los últimos {{ d.dias }} días</span>
+        <div class="kpi-fila">
+          <span class="kpi-valor" [attr.title]="(d.kpis.ventasPeriodo | dinero)">{{ d.kpis.ventasPeriodo | dinero:true }}</span>
+          <app-sparkline [valores]="valoresVentasDia()" />
+        </div>
+        <span class="kpi-pie">
+          @if (variacion(); as v) {
+            <span class="delta" [class]="'delta ' + v.clase"><app-icon [name]="v.icono" [size]="13" [trazo]="2.4" />{{ v.texto }}</span>
+            frente a los {{ d.dias }} días previos@if ((d.kpis.devolucionesPeriodo ?? 0) > 0) {, neto de {{ d.kpis.devolucionesPeriodo | dinero:true }} en devoluciones}
+          } @else {
+            Sin periodo anterior para comparar
+          }
+        </span>
+      </div>
+
+      <div class="kpi">
+        <span class="kpi-etiqueta">Pedidos en el periodo</span>
+        <div class="kpi-fila">
+          <span class="kpi-valor">{{ d.kpis.pedidosPeriodo }}</span>
+          <app-sparkline [valores]="valoresPedidosDia()" color="#2f6fb5" />
+        </div>
+        <span class="kpi-pie">Ticket promedio {{ d.kpis.ticketPromedio | dinero }}</span>
+      </div>
+    }
+
+    <a class="kpi kpi-enlace" routerLink="/pedidos" [queryParams]="{ estado: 'pendiente' }">
+      <span class="kpi-etiqueta">Pedidos por atender</span>
+      <span class="kpi-valor">{{ d.kpis.pedidosPendientes + d.kpis.pedidosProcesando }}</span>
+      <span class="kpi-pie">{{ d.kpis.pedidosPendientes }} pendientes y {{ d.kpis.pedidosProcesando }} en proceso</span>
+    </a>
+
+    <a
+      class="kpi kpi-enlace"
+      [class.acento]="d.kpis.productosEnAlerta > 0"
+      [routerLink]="puedeReponer() ? '/reposicion' : '/productos'"
+      [queryParams]="puedeReponer() ? null : { estado: 'bajo' }"
+    >
+      <span class="kpi-etiqueta">Productos por reponer</span>
+      <span class="kpi-valor">{{ d.kpis.productosEnAlerta }}</span>
+      <span class="kpi-pie">
+        @if (d.kpis.productosEnAlerta === 0) { Todo en niveles saludables } @else { de {{ d.kpis.productosActivos }} productos activos }
+      </span>
+    </a>
+
+    @if (d.kpis.carteraPorCobrar !== null) {
+      <a class="kpi kpi-enlace" routerLink="/cartera/cobrar" [class.acento]="(d.kpis.carteraVencida ?? 0) > 0">
+        <span class="kpi-etiqueta">Cartera por cobrar</span>
+        <span class="kpi-valor" [attr.title]="(d.kpis.carteraPorCobrar | dinero)">{{ d.kpis.carteraPorCobrar | dinero:true }}</span>
+        <span class="kpi-pie">
+          @if ((d.kpis.carteraVencida ?? 0) > 0) { <span class="delta delta-baja">{{ d.kpis.carteraVencida | dinero:true }} vencido</span> {{ d.kpis.facturasVencidas }} facturas en mora }
+          @else { Sin facturas vencidas }
+        </span>
+      </a>
+    }
+
+    @if (d.kpis.cuentasPorPagar !== null) {
+      <a class="kpi kpi-enlace" routerLink="/cartera/pagar">
+        <span class="kpi-etiqueta">Cuentas por pagar</span>
+        <span class="kpi-valor" [attr.title]="(d.kpis.cuentasPorPagar | dinero)">{{ d.kpis.cuentasPorPagar | dinero:true }}</span>
+        <span class="kpi-pie">@if ((d.kpis.cuentasPorPagarVencidas ?? 0) > 0) { <span class="delta delta-baja">{{ d.kpis.cuentasPorPagarVencidas | dinero:true }} vencido</span> } @else { A proveedores, sin vencidas }</span>
+      </a>
+    }
+
+    @if (d.kpis.valorInventario; as valor) {
+      <div class="kpi">
+        <span class="kpi-etiqueta">Valor del inventario a costo</span>
+        <span class="kpi-valor" [attr.title]="(valor.costo | dinero)">{{ valor.costo | dinero:true }}</span>
+        <span class="kpi-pie">A precio de venta {{ valor.venta | dinero:true }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Ventas por día y pedidos por estado -->
+  <div [class]="verVentas() ? 'grid-dash' : 'grid-2'">
+    @if (verVentas()) {
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Ventas por día</h2>
+            <p class="nota">Pasa el cursor sobre la gráfica para ver el detalle de cada día</p>
+          </div>
+        </div>
+        <app-grafico-series
+          [etiquetas]="etiquetasSerie()"
+          [claves]="clavesSerie()"
+          [series]="seriesVentas()"
+          [formato]="formatoDinero"
+          [formatoEje]="formatoEje"
+          [altura]="270"
+          descripcion="Ventas diarias del periodo"
+        />
+      </section>
+    }
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Pedidos por estado</h2>
+          <p class="nota">Últimos 30 días. Toca un estado para ver sus pedidos</p>
+        </div>
+      </div>
+      <app-grafico-dona
+        [segmentos]="segmentosEstado()"
+        textoTotal="pedidos"
+        descripcion="Pedidos por estado"
+        (seleccion)="irAEstado($event)"
+      />
+    </section>
+  </div>
+
+  <div class="grid-2">
+    <!-- Más vendidos -->
+    @if (d.topProductos) {
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Productos más vendidos</h2>
+            <p class="nota">Por ingresos en los últimos {{ d.dias }} días</p>
+          </div>
+        </div>
+        @if (d.topProductos.length === 0) {
+          <div class="vacio">
+            <span class="icono-vacio"><app-icon name="grafico" [size]="24" /></span>
+            <strong>Aún no hay ventas en este periodo</strong>
+            <p>Cuando registres pedidos, aquí verás los productos que más ingresos generan.</p>
+          </div>
+        } @else {
+          <ol class="hbars">
+            @for (p of d.topProductos; track p.sku) {
+              <li class="hbar-fila">
+                <span class="hbar-nombre" [attr.title]="p.nombre">{{ p.nombre }}</span>
+                <span class="hbar-valor">{{ p.ingresos | dinero:true }}</span>
+                <span class="hbar-pista"><span class="hbar-relleno" [style.width.%]="porcentajeTop(p.ingresos)"></span></span>
+                <span class="hbar-detalle">{{ p.unidades }} unidades vendidas</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    }
+
+    <!-- Atención inmediata -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Requieren atención</h2>
+          <p class="nota">Los productos más cerca de agotarse</p>
+        </div>
+        <a [routerLink]="puedeReponer() ? '/reposicion' : '/productos'" [queryParams]="puedeReponer() ? null : { estado: 'bajo' }">Ver todos</a>
+      </div>
+      @if (d.atencion.length === 0) {
+        <div class="vacio">
+          <span class="icono-vacio"><app-icon name="check" [size]="24" /></span>
+          <strong>Todo el inventario está en orden</strong>
+          <p>Ningún producto está en su nivel mínimo.</p>
+        </div>
+      } @else {
+        <div class="tabla-wrap">
+          <table>
+            <thead>
+              <tr><th>Producto</th><th>Stock</th><th>Nivel</th></tr>
+            </thead>
+            <tbody>
+              @for (p of d.atencion; track p._id) {
+                <tr>
+                  <td>
+                    <span class="celda-doble">
+                      <span class="principal">{{ p.nombre }}</span>
+                      <span class="secundaria codigo">{{ p.sku }}</span>
+                    </span>
+                  </td>
+                  <td><app-stock-meter [stock]="p.stock" [minimo]="p.stockMinimo" /></td>
+                  <td><span [class]="'chip ' + chipNivel[p.nivel]">{{ etiquetaNivel[p.nivel] }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- Pedidos recientes -->
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Pedidos recientes</h2>
+      </div>
+      <a routerLink="/pedidos">Ver todos</a>
+    </div>
+    @if (pedidosRecientes().length === 0) {
+      <p class="sin-datos">Todavía no hay pedidos registrados.</p>
+    } @else {
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr><th>Cliente</th><th class="num">Total</th><th>Estado</th><th>Fecha</th></tr>
+          </thead>
+          <tbody>
+            @for (pedido of pedidosRecientes(); track pedido._id) {
+              <tr>
+                <td><a [routerLink]="['/pedidos', pedido._id]">{{ pedido.cliente }}</a></td>
+                <td class="num">{{ pedido.total | dinero }}</td>
+                <td><span class="badge" [class]="'badge ' + claseEstado(pedido.estado)">{{ pedido.estado }}</span></td>
+                <td>{{ pedido.createdAt | date:'d MMM, h:mm a' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+}

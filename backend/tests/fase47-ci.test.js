@@ -1,0 +1,11 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const base = path.resolve(__dirname, '..');
+const ejecutor = fs.readFileSync(path.join(base, 'scripts/ejecutarIntegracionMongo.js'), 'utf8');
+const workflow = fs.readFileSync(path.resolve(base, '../.github/workflows/calidad.yml'), 'utf8');
+test('integración exige ejecutar prueba de rollback', () => assert.match(ejecutor, /fase47-integridad-mongo\.test\.js/));
+test('integración exige ejecutar prueba de concurrencia', () => assert.match(ejecutor, /fase39-integracion-mongo\.test\.js/));
+test('CI prepara replica set y ejecuta integración obligatoria', () => { assert.match(workflow, /--replSet rs0/); assert.match(workflow, /ejecutarIntegracionMongo\.js/); });
+test('no se aceptan pruebas de integración omitidas', () => assert.match(ejecutor, /matches\.skipped !== 0/));

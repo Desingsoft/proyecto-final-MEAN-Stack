@@ -1,0 +1,16 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { validarEntorno } = require('../utils/validarEntorno');
+const base = { NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost:27017/test', JWT_SECRET: 'a'.repeat(64), CORS_ORIGINS: 'https://inventario.example.com' };
+test('acepta entorno de producción configurado', () => assert.equal(validarEntorno(base).valido, true));
+test('rechaza secreto débil en producción', () => assert.match(validarEntorno({...base,JWT_SECRET:'cambia_esto'}).errores.join(), /JWT_SECRET/));
+test('advierte secreto débil en desarrollo sin impedir inicio', () => { const r=validarEntorno({...base,NODE_ENV:'development',JWT_SECRET:'cambia_esto'});assert.equal(r.valido,true);assert.equal(r.advertencias.length,1); });
+test('rechaza ausencia de MongoDB y JWT', () => assert.equal(validarEntorno({NODE_ENV:'production'}).errores.length >= 3,true));
+test('rechaza CORS abierto en producción', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:''}).valido,false));
+test('rechaza CORS con rutas', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:'https://example.com/path'}).valido,false));
+test('rechaza CORS con comodín', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:'*'}).valido,false));
+test('admite múltiples orígenes bien formados', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:'https://a.example.com,https://b.example.com'}).origenes.length,2));
+test('advierte origen HTTP público en producción', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:'http://example.com'}).advertencias.length,1));
+test('admite origen local HTTP para Docker', () => assert.equal(validarEntorno({...base,CORS_ORIGINS:'http://localhost:8080'}).valido,true));
+test('rechaza desactivar transacciones en producción', () => assert.equal(validarEntorno({...base,PERMITIR_SIN_TRANSACCION:'true'}).valido,false));
+test('no expone valores secretos en errores', () => {const secret='clave-no-publicar'; const r=validarEntorno({...base,JWT_SECRET:secret});assert.equal(JSON.stringify(r).includes(secret),false);});

@@ -1,0 +1,64 @@
+<div class="form-container">
+  <h1>{{ esEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+
+  <form [formGroup]="productoForm" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" formControlName="nombre">
+      </div>
+      <div class="form-group">
+        <label>SKU</label>
+        <input type="text" formControlName="sku">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Categoría</label>
+      <input type="text" formControlName="categoria">
+    </div>
+
+    <div class="form-group">
+      <label>Proveedor</label>
+      <select formControlName="proveedor">
+        <option value="">Sin proveedor asignado</option>
+        @for (proveedor of proveedores(); track proveedor._id) {
+          <option [value]="proveedor._id">{{ proveedor.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Precio de venta</label>
+        <input type="number" step="0.01" formControlName="precio">
+      </div>
+      <div class="form-group">
+        <label>Costo</label>
+        <input type="number" step="0.01" formControlName="costo">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Stock actual</label>
+        <input type="number" formControlName="stock">
+      </div>
+      <div class="form-group">
+        <label>Stock mínimo</label>
+        <input type="number" formControlName="stockMinimo">
+      </div>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="error-alert">{{ errorMsg() }}</div>
+    }
+
+    <div class="form-actions">
+      <button type="button" (click)="router.navigate(['/productos'])">Cancelar</button>
+      <button type="submit" [disabled]="productoForm.invalid || cargando()">
+        {{ cargando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

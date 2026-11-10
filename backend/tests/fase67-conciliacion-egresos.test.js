@@ -1,0 +1,18 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {auditarEgresosOrden}=require('../utils/auditoriaEgresosCompras');
+const orden={_id:'o1',numero:'OC-1',proveedor:'pr1',sucursal:'s1',estado:'parcial',total:100,pagado:40};
+const pago={_id:'p1',orden:'o1',tipo:'egreso',numero:'CE-1',monto:40,estado:'vigente',proveedor:'pr1',sucursal:'s1'};
+const codigos=(o=orden,ps=[pago])=>auditarEgresosOrden(o,ps).hallazgos.map(h=>h.codigo);
+test('egreso válido concilia sin alertas',()=>assert.deepEqual(codigos(),[]));
+test('detecta valor pagado distinto de egresos vigentes',()=>assert.ok(codigos({...orden,pagado:30}).includes('ORDEN_PAGADO_DESCUADRADO')));
+test('ignora egresos anulados para el saldo',()=>assert.deepEqual(codigos({...orden,pagado:0},[{...pago,estado:'anulado'}]),[]));
+test('detecta egresos que superan total de orden',()=>assert.ok(codigos({...orden,pagado:120},[{...pago,monto:120}]).includes('EGRESOS_SUPERAN_TOTAL')));
+test('detecta egresos de orden cancelada',()=>assert.ok(codigos({...orden,estado:'cancelada'}).includes('ORDEN_CANCELADA_CON_EGRESOS')));
+test('detecta pago de proveedor distinto',()=>assert.ok(codigos(orden,[{...pago,proveedor:'pr2'}]).includes('EGRESO_PROVEEDOR_DISTINTO')));
+test('detecta pago de sucursal distinta',()=>assert.ok(codigos(orden,[{...pago,sucursal:'s2'}]).includes('EGRESO_SUCURSAL_DISTINTA')));
+test('detecta comprobantes y claves repetidas',()=>{const c=codigos({...orden,pagado:80},[pago,{...pago,_id:'p2',claveIdempotencia:'x'}, {...pago,_id:'p3',numero:'CE-3',claveIdempotencia:'x'}]);assert.ok(c.includes('EGRESO_NUMERO_DUPLICADO'));assert.ok(c.includes('EGRESO_CLAVE_DUPLICADA'));});
+test('detecta monto inválido',()=>assert.ok(codigos(orden,[{...pago,monto:-1}]).includes('EGRESO_MONTO_INVALIDO')));
+test('detecta estado de egreso inválido',()=>assert.ok(codigos(orden,[{...pago,estado:'otro'}]).includes('EGRESO_ESTADO_INVALIDO')));
+test('detecta desbordamiento de acumulado',()=>assert.ok(codigos({...orden,pagado:0},[{...pago,monto:Number.MAX_SAFE_INTEGER},{...pago,_id:'p2',numero:'CE-2',monto:1}]).includes('EGRESOS_FUERA_RANGO')));
+test('no atribuye egresos de otra orden',()=>assert.ok(codigos({...orden,pagado:0},[{...pago,orden:'o2'}]).includes('EGRESO_ORDEN_DISTINTA')));

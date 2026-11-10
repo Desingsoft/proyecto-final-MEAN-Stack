@@ -1,0 +1,10 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { evaluarExistencias } = require('../utils/diagnosticoInventario');
+const productos = [{ _id: 'p1', stock: 10 }];
+const bodegas = [{ _id: 'b1', sucursal: 's1' }];
+test('existencias correctas no generan hallazgos', () => assert.equal(evaluarExistencias(productos, [{ producto: 'p1', bodega: 'b1', cantidad: 10 }], bodegas).hallazgos.length, 0));
+test('detecta diferencia global y ubicación', () => assert.ok(evaluarExistencias(productos, [{ producto: 'p1', bodega: 'b1', cantidad: 9 }], bodegas).hallazgos.some(h => h.codigo === 'DIFERENCIA_GLOBAL_BODEGAS')));
+test('detecta existencia huérfana', () => assert.ok(evaluarExistencias(productos, [{ producto: 'p2', bodega: 'b1', cantidad: 0 }], bodegas).hallazgos.some(h => h.codigo === 'PRODUCTO_INEXISTENTE')));
+test('detecta bodega sin sucursal', () => assert.ok(evaluarExistencias(productos, [{ producto: 'p1', bodega: 'b1', cantidad: 10 }], [{ _id: 'b1' }]).hallazgos.some(h => h.codigo === 'BODEGA_SIN_SUCURSAL')));
+test('detecta cantidades negativas y duplicados', () => { const r = evaluarExistencias(productos, [{ producto: 'p1', bodega: 'b1', cantidad: -1 }, { producto: 'p1', bodega: 'b1', cantidad: 2 }], bodegas); assert.ok(r.hallazgos.some(h => h.codigo === 'CANTIDAD_INVALIDA')); assert.ok(r.hallazgos.some(h => h.codigo === 'EXISTENCIA_DUPLICADA')); });

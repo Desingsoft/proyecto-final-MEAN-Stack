@@ -1,0 +1,69 @@
+<header class="page-header">
+  <div>
+    <h1>Pedidos</h1>
+    <p class="subtitulo">Sigue cada pedido desde que llega hasta que se completa. La lista se actualiza sola.</p>
+  </div>
+  @if (puedeCrearPedido()) {
+    <a routerLink="/pedidos/nuevo" class="btn-primary"><app-icon name="mas" [size]="18" /> Nuevo pedido</a>
+  }
+</header>
+
+<section class="panel">
+  <div class="filtro-chips" role="group" aria-label="Estado del pedido" style="margin-bottom: 1rem">
+    <button type="button" class="filtro-chip" [class.activo]="filtroEstado() === ''" (click)="filtrar('')">Todos</button>
+    @for (estado of estados; track estado) {
+      <button type="button" class="filtro-chip" [class.activo]="filtroEstado() === estado" (click)="filtrar(estado)" style="text-transform: capitalize">{{ estado }}</button>
+    }
+  </div>
+
+  @if (cargando()) {
+    <div class="skeleton" style="height: 300px"></div>
+  } @else if (pedidos().length === 0) {
+    <div class="vacio">
+      <span class="icono-vacio"><app-icon name="pedidos" [size]="26" /></span>
+      <strong>No hay pedidos para mostrar</strong>
+      <p>{{ filtroEstado() ? 'No hay pedidos con este estado.' : 'Cuando se registren pedidos aparecerán aquí.' }}</p>
+      @if (filtroEstado()) { <button type="button" class="btn-secondary" (click)="filtrar('')">Ver todos</button> }
+    </div>
+  } @else {
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th class="num">Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pedido of pedidos(); track pedido._id) {
+            <tr>
+              <td><a [routerLink]="['/pedidos', pedido._id]">{{ pedido.cliente }}</a></td>
+              <td class="num">{{ pedido.total | dinero }}</td>
+              <td><span class="badge" [class]="'badge ' + claseEstado(pedido.estado)">{{ pedido.estado }}</span></td>
+              <td>{{ pedido.createdAt | date:'d MMM y, h:mm a' }}</td>
+              <td>
+                @if (pedido.estado !== 'completado' && pedido.estado !== 'cancelado') {
+                  <select #sel style="min-height: 34px; font-size: 0.85rem" (change)="cambiarEstado(pedido, sel.value, sel)" [attr.aria-label]="'Cambiar estado del pedido de ' + pedido.cliente">
+                    <option value="" selected disabled>Cambiar estado…</option>
+                    @for (estado of estados; track estado) {
+                      @if (estado !== pedido.estado) { <option [value]="estado">{{ estado }}</option> }
+                    }
+                  </select>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacion">
+      <button type="button" (click)="cambiarPagina(paginaActual() - 1)" [disabled]="paginaActual() === 1">Anterior</button>
+      <span>Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+      <button type="button" (click)="cambiarPagina(paginaActual() + 1)" [disabled]="paginaActual() === totalPaginas()">Siguiente</button>
+    </div>
+  }
+</section>

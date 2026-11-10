@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.angular/
+.env
+*.log
+.DS_Store
+
+# Respaldos de MongoDB con información sensible
+backend/backups/
+*.archive.gz

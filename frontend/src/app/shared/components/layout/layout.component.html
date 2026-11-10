@@ -1,0 +1,78 @@
+<!-- Enlace de salto: evita recorrer el menú completo con teclado. -->
+<a class="saltar-contenido" href="#contenido-principal">Saltar al contenido principal</a>
+<div class="app-shell">
+  <header class="barra-movil">
+    <button type="button" class="btn-icono" (click)="menuAbierto.set(true)" [attr.aria-expanded]="menuAbierto()" aria-controls="navegacion-principal" aria-label="Abrir menú">
+      <app-icon name="menu" [size]="22" />
+    </button>
+    <a routerLink="/dashboard" class="marca-movil">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+        <rect x="3" y="17" width="12" height="12" rx="2.5" fill="#f2b01e" />
+        <rect x="17" y="17" width="12" height="12" rx="2.5" fill="#10292c" fill-opacity="0.9" />
+        <rect x="10" y="3" width="12" height="12" rx="2.5" fill="#0b7a75" />
+      </svg>
+      Inventario PYME
+    </a>
+    @if (alertas.stockBajo() > 0) {
+      <a routerLink="/productos" [queryParams]="{ estado: 'bajo' }" class="aviso-movil" aria-label="Productos con stock bajo">
+        <app-icon name="alerta" [size]="18" /> {{ alertas.stockBajo() }}
+      </a>
+    }
+  </header>
+
+  <div class="velo" [class.visible]="menuAbierto()" (click)="menuAbierto.set(false)"></div>
+
+  <aside id="navegacion-principal" class="lateral" [class.abierto]="menuAbierto()">
+    <div class="marca">
+      <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+        <rect x="3" y="17" width="12" height="12" rx="2.5" fill="#f2b01e" />
+        <rect x="17" y="17" width="12" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.92" />
+        <rect x="10" y="3" width="12" height="12" rx="2.5" fill="#3fb8af" />
+      </svg>
+      <span>Inventario<br />PYME</span>
+      <button type="button" class="btn-icono cerrar-menu" (click)="menuAbierto.set(false)" aria-label="Cerrar menú">
+        <app-icon name="cerrar" [size]="20" />
+      </button>
+    </div>
+
+    <nav aria-label="Principal">
+      @for (grupo of grupos(); track grupo.titulo) {
+        <div class="grupo">
+          <p class="grupo-titulo">{{ grupo.titulo }}</p>
+          <ul>
+            @for (item of grupo.items; track item.ruta) {
+              <li>
+                <a [routerLink]="item.ruta" routerLinkActive="activo">
+                  <app-icon [name]="item.icono" [size]="19" />
+                  <span>{{ item.etiqueta }}</span>
+                  @if (item.conAlertas && alertas.stockBajo() > 0) {
+                    <span class="insignia" [attr.title]="alertas.stockBajo() + ' productos por reponer'">{{ alertas.stockBajo() }}</span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+      <!-- Acceso directo al centro de gestión avanzada desde escritorio y móvil. -->
+      <a routerLink="/avanzado" routerLinkActive="activo" (click)="menuAbierto.set(false)" class="enlace-avanzado">Centro de gestión avanzada</a>
+    </nav>
+
+    <div class="usuario">
+      <a routerLink="/perfil" routerLinkActive="activo" class="usuario-info" title="Mi perfil">
+        <span class="avatar" [class]="'avatar rol-' + authService.usuarioActual()?.role">{{ iniciales() }}</span>
+        <span class="usuario-datos">
+          <strong>{{ authService.usuarioActual()?.nombre }}</strong>
+          <small>{{ etiquetaRol() }}</small>
+        </span>
+      </a>
+      <button type="button" class="btn-salir" (click)="logout()" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <app-icon name="salir" [size]="18" />
+      </button>
+    </div>
+  </aside>
+
+  <main id="contenido-principal" class="contenido" tabindex="-1">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,216 @@
+<div class="detalle-pedido-container">
+  @if (cargando()) {
+    <div class="skeleton" style="height: 260px"></div>
+  } @else if (errorMsg()) {
+    <div class="error-alert">{{ errorMsg() }}</div>
+    <a routerLink="/pedidos" class="volver"><app-icon name="atras" [size]="14" /> Volver a pedidos</a>
+  } @else {
+    @if (pedido(); as p) {
+    <header class="page-header">
+      <div>
+        <a routerLink="/pedidos" class="volver"><app-icon name="atras" [size]="14" /> Volver a pedidos</a>
+        <h1>Pedido de {{ p.cliente }}</h1>
+      </div>
+      <div class="page-header-acciones">
+        @if (puedeDevolver()) {
+          <button type="button" class="btn-secondary" (click)="devolviendo.set(true)"><app-icon name="refrescar" [size]="16" /> Registrar devolución</button>
+        }
+        <span class="badge" [class]="'badge ' + claseEstado(p.estado)">{{ p.estado }}</span>
+      </div>
+    </header>
+
+    <section class="panel info-general">
+      <div>
+        <span class="label">Fecha</span>
+        <span>{{ p.createdAt | date:'d MMMM y, h:mm a' }}</span>
+      </div>
+      <div>
+        <span class="label">Cliente</span>
+        @if (clienteFicha(); as c) {
+          <a [routerLink]="['/clientes', c._id]">{{ c.nombre }}</a>
+        } @else {
+          <span>{{ p.cliente }} <span class="chip chip-neutro sin-punto" title="Sin ficha de cliente: los documentos usarán solo el nombre">Sin ficha</span></span>
+        }
+      </div>
+      @if (p.descuentoPorcentaje) {
+        <div>
+          <span class="label">Descuento</span>
+          <span>{{ p.descuentoPorcentaje }} %</span>
+        </div>
+      }
+      <div>
+        <span class="label">Total</span>
+        <span class="total">{{ p.total | dinero }}</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Productos del pedido</h2>
+      <div class="tabla-wrap"><table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="num">Precio unitario</th>
+            <th class="num">Cantidad</th>
+            @if (hayDevueltos()) { <th class="num">Devueltas</th> }
+            <th class="num">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of p.items; track item.producto) {
+            <tr>
+              <td>{{ nombreProducto(item) }}</td>
+              <td class="num">{{ item.precioUnitario | dinero }}</td>
+              <td class="num">{{ item.cantidad }}</td>
+              @if (hayDevueltos()) { <td class="num" [style.color]="devueltoDe(item) > 0 ? 'var(--critico-texto)' : 'inherit'">{{ devueltoDe(item) || '—' }}</td> }
+              <td class="num">{{ item.precioUnitario * item.cantidad | dinero }}</td>
+            </tr>
+          }
+        </tbody>
+      </table></div>
+    </section>
+
+    @if (devoluciones().length > 0) {
+      <section class="panel">
+        <div class="panel-header"><div><h2>Devoluciones</h2><p class="nota">Productos que el cliente devolvió de este pedido.</p></div></div>
+        <div class="tabla-wrap"><table>
+          <thead><tr><th>Devolución</th><th>Motivo</th><th>Unidades</th><th>Nota crédito</th><th class="num">Valor</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            @for (d of devoluciones(); track d._id) {
+              <tr [style.opacity]="d.estado === 'anulada' ? 0.55 : 1">
+                <td><span class="celda-doble"><span class="principal">{{ d.numero }}</span><span class="secundaria">{{ d.createdAt | date:'d MMM y, h:mm a' }}</span></span></td>
+                <td><span class="celda-doble"><span>{{ etiquetaMotivo[d.motivo] }}</span>@if (d.nota) { <span class="secundaria">{{ d.nota }}</span> }</span></td>
+                <td>
+                  @for (i of d.items; track i.producto) { <span class="chip sin-punto" [class]="'chip sin-punto ' + (i.reintegrar ? 'chip-ok' : 'chip-agotado')" style="margin: 0 0.3rem 0.2rem 0; text-transform: none" [attr.title]="i.reintegrar ? 'Volvió al inventario' : 'Dañado: se descartó'">{{ i.cantidad }} {{ i.descripcion }}</span> }
+                </td>
+                <td>@if (d.notaCredito) { <a [routerLink]="['/documentos', d.notaCredito._id]">{{ d.notaCredito.numero }}</a> } @else { <span style="color: var(--texto-tenue)">Sin factura</span> }</td>
+                <td class="num"><strong [style.text-decoration]="d.estado === 'anulada' ? 'line-through' : 'none'">{{ d.valor | dinero }}</strong>@if (d.estado === 'anulada') { <span class="secundaria" style="display: block; color: var(--agotado-texto); font-size: 0.75rem">Anulada</span> }</td>
+                <td>@if (d.estado === 'vigente' && authService.tieneRol(['admin'])) { <button type="button" class="btn-icono peligro" (click)="anulandoDev.set(d)" title="Anular devolución" [attr.aria-label]="'Anular ' + d.numero"><app-icon name="papelera" [size]="17" /></button> }</td>
+              </tr>
+            }
+          </tbody>
+        </table></div>
+      </section>
+    }
+
+    @if (puedeFacturar()) {
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Remisión y factura</h2>
+            <p class="nota">Documentos de este pedido con los datos del cliente y de tu empresa.</p>
+          </div>
+          @if (p.estado !== 'cancelado') {
+            <div class="page-header-acciones">
+              <button type="button" class="btn-secondary btn-sm" (click)="abrirEmision('remision')" [disabled]="!!vigente('remision')"><app-icon name="pdf" [size]="15" /> Emitir remisión</button>
+              <button type="button" class="btn-primary btn-sm" (click)="abrirEmision('factura')" [disabled]="!!vigente('factura')"><app-icon name="pdf" [size]="15" /> Emitir factura</button>
+            </div>
+          }
+        </div>
+        @if (documentos().length === 0) {
+          <p class="sin-datos" style="padding: 1rem">Todavía no se han emitido documentos para este pedido.</p>
+        } @else {
+          <div class="tabla-wrap"><table>
+            <thead><tr><th>Número</th><th>Tipo</th><th>Estado</th><th class="num">Total</th><th>Emitido</th></tr></thead>
+            <tbody>
+              @for (d of documentos(); track d._id) {
+                <tr [style.opacity]="d.estado === 'anulada' ? 0.6 : 1">
+                  <td><a [routerLink]="['/documentos', d._id]">{{ d.numero }}</a></td>
+                  <td>{{ d.tipo === 'factura' ? 'Factura' : d.tipo === 'nota_credito' ? 'Nota crédito' : 'Remisión' }}</td>
+                  <td><span [class]="'chip ' + (d.estado === 'anulada' ? 'chip-agotado' : 'chip-ok')">{{ d.estado === 'anulada' ? 'Anulada' : 'Vigente' }}</span></td>
+                  <td class="num">{{ d.total | dinero }}</td>
+                  <td>{{ d.createdAt | date:'d MMM y, h:mm a' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table></div>
+        }
+      </section>
+    }
+
+    @if (puedeEditarEstado()) {
+      <section class="panel">
+        <h2>Cambiar estado</h2>
+        <div class="estado-acciones">
+          @for (estado of estados; track estado) {
+            @if (estado !== p.estado) {
+              <button type="button" (click)="cambiarEstado(estado)" [style.background]="estado === 'cancelado' ? 'var(--agotado)' : estado === 'completado' ? 'var(--ok)' : estado === 'pendiente' ? 'var(--aviso)' : estado === 'procesando' ? 'var(--info)' : 'var(--violeta)'">
+                Marcar como "{{ estado }}"
+              </button>
+            }
+          }
+        </div>
+      </section>
+    }
+    }
+  }
+</div>
+
+@if (emitiendo(); as tipo) {
+  <app-modal [titulo]="tipo === 'factura' ? 'Emitir factura' : 'Emitir remisión'"
+    [descripcion]="tipo === 'factura' ? 'Se numera automáticamente y guarda una copia de los datos de hoy.' : 'Documento de entrega de mercancía, sin discriminar IVA.'" (cerrar)="emitiendo.set(null)">
+    @if (tipo === 'factura') {
+      <div class="form-row">
+        <div class="form-group">
+          <label for="em-pago">Forma de pago</label>
+          <select id="em-pago" [ngModel]="formaPago()" (ngModelChange)="formaPago.set($event)">
+            <option value="contado">Contado</option>
+            <option value="credito">Crédito</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="em-iva">IVA (%)</label>
+          <input id="em-iva" type="number" min="0" max="100" [ngModel]="ivaPorcentaje()" (ngModelChange)="ivaPorcentaje.set($event)" />
+        </div>
+      </div>
+      @if (formaPago() === 'credito') {
+        <div class="form-group">
+          <label for="em-dias">Días de crédito</label>
+          <input id="em-dias" type="number" min="0" [ngModel]="diasCredito()" (ngModelChange)="diasCredito.set($event)" />
+          <span class="ayuda">La factura quedará en la cartera por cobrar hasta que se registren los pagos.</span>
+        </div>
+      } @else {
+        <div class="form-row">
+          <div class="form-group">
+            <label for="em-metodo">Cómo pagó</label>
+            <select id="em-metodo" [ngModel]="metodoPago()" (ngModelChange)="metodoPago.set($event)">
+              @for (m of metodos; track m) { <option [value]="m">{{ etiquetaMetodo[m] }}</option> }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="em-ref">Referencia (opcional)</label>
+            <input id="em-ref" type="text" [ngModel]="referenciaPago()" (ngModelChange)="referenciaPago.set($event)" placeholder="N.º de transferencia…" />
+          </div>
+        </div>
+      }
+    }
+    <div class="form-group">
+      <label for="em-notas">Observaciones (opcional)</label>
+      <input id="em-notas" type="text" [ngModel]="notasDocumento()" (ngModelChange)="notasDocumento.set($event)" placeholder="Se imprimen al final del documento" />
+    </div>
+    @if (errorDoc()) { <div class="error-alert" role="alert">{{ errorDoc() }}</div> }
+    <div pie>
+      <button type="button" class="btn-secondary" (click)="emitiendo.set(null)" [disabled]="guardandoDoc()">Cancelar</button>
+      @if (cupoExcedido() && esAdmin() && tipo === 'factura') {
+        <button type="button" class="btn-secondary" (click)="emitir(true)" [disabled]="guardandoDoc()">Autorizar y emitir</button>
+      }
+      <button type="button" class="btn-primary" (click)="emitir()" [disabled]="guardandoDoc()">{{ guardandoDoc() ? 'Emitiendo…' : (tipo === 'factura' ? 'Emitir factura' : 'Emitir remisión') }}</button>
+    </div>
+  </app-modal>
+}
+
+@if (devolviendo() && pedido(); as p) {
+  <app-devolucion-form-modal [pedido]="p" [devuelto]="devuelto()" [factura]="facturaVigente()" (registrada)="alDevolver($event)" (cerrar)="devolviendo.set(false)" />
+}
+
+@if (anulandoDev(); as ad) {
+  <app-modal titulo="Anular devolución" [descripcion]="ad.numero + ' · ' + (ad.valor | dinero)" (cerrar)="anulandoDev.set(null)">
+    <p style="color: var(--texto-suave); margin-bottom: 1rem">Lo que volvió al inventario saldrá de nuevo y la nota crédito se anula. La factura recupera lo que se había acreditado.</p>
+    <div class="form-group"><label for="ad-motivo">Motivo</label><input id="ad-motivo" type="text" [ngModel]="motivoDev()" (ngModelChange)="motivoDev.set($event)" placeholder="Ej. La devolución estaba mal registrada" (keydown.enter)="anularDevolucion()" /></div>
+    @if (errorDev()) { <div class="error-alert" role="alert">{{ errorDev() }}</div> }
+    <div pie>
+      <button type="button" class="btn-secondary" (click)="anulandoDev.set(null)">Cancelar</button>
+      <button type="button" class="btn-danger" style="min-height: 40px; font-size: 0.9rem" (click)="anularDevolucion()" [disabled]="motivoDev().trim().length < 5 || guardandoDev()">{{ guardandoDev() ? 'Anulando…' : 'Anular devolución' }}</button>
+    </div>
+  </app-modal>
+}

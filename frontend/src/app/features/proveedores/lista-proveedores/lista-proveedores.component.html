@@ -1,0 +1,54 @@
+<header class="page-header">
+  <div>
+    <h1>Proveedores</h1>
+    <p class="subtitulo">Con quién compras tu mercancía y cómo contactarlos.</p>
+  </div>
+  @if (esAdmin()) {
+    <a routerLink="/proveedores/nuevo" class="btn-primary"><app-icon name="mas" [size]="18" /> Nuevo proveedor</a>
+  }
+</header>
+
+<section class="panel">
+  @if (cargando()) {
+    <div class="skeleton" style="height: 240px"></div>
+  } @else if (proveedores().length === 0) {
+    <div class="vacio">
+      <span class="icono-vacio"><app-icon name="camion" [size]="26" /></span>
+      <strong>Aún no hay proveedores</strong>
+      <p>Registra tus proveedores para asociarlos a los productos y armar tus listas de compra.</p>
+      @if (esAdmin()) { <a routerLink="/proveedores/nuevo" class="btn-primary">Crear proveedor</a> }
+    </div>
+  } @else {
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            @if (esAdmin()) { <th><span class="sr-only">Acciones</span></th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (proveedor of proveedores(); track proveedor._id) {
+            <tr>
+              <td><strong style="color: var(--tinta)">{{ proveedor.nombre }}</strong></td>
+              <td>{{ proveedor.contacto || '—' }}</td>
+              <td>{{ proveedor.telefono || '—' }}</td>
+              <td>{{ proveedor.email || '—' }}</td>
+              @if (esAdmin()) {
+                <td>
+                  <span class="acciones" style="justify-content: flex-end">
+                    <a [routerLink]="['/proveedores/editar', proveedor._id]" class="btn-icono" title="Editar" [attr.aria-label]="'Editar ' + proveedor.nombre"><app-icon name="editar" [size]="17" /></a>
+                    <button type="button" class="btn-icono peligro" (click)="eliminar(proveedor)" title="Eliminar" [attr.aria-label]="'Eliminar ' + proveedor.nombre"><app-icon name="papelera" [size]="17" /></button>
+                  </span>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

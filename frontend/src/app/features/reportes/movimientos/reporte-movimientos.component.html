@@ -1,0 +1,83 @@
+<div class="barra-filtros" style="justify-content: space-between">
+  <app-rango-fechas (cambio)="onRango($event)" />
+  <span style="display: flex; gap: 0.5rem">
+    <button type="button" class="btn-secondary btn-sm" (click)="exportarComo('excel')" [disabled]="!datos() || exportando()"><app-icon name="excel" [size]="16" /> Excel</button>
+    <button type="button" class="btn-primary btn-sm" (click)="exportarComo('pdf')" [disabled]="!datos() || exportando()"><app-icon name="pdf" [size]="16" /> {{ exportando() ? 'Generando…' : 'PDF' }}</button>
+  </span>
+</div>
+
+@if (error()) { <div class="error-alert" role="alert">{{ error() }}</div> }
+
+@if (cargando() && !datos()) {
+  <div class="kpis">@for (i of [1, 2, 3, 4]; track i) { <div class="skeleton" style="height: 100px"></div> }</div>
+  <div class="skeleton" style="height: 300px"></div>
+} @else {
+  @if (datos(); as d) {
+  <div class="kpis" [style.opacity]="cargando() ? 0.6 : 1" style="transition: opacity 0.15s">
+    <div class="kpi"><span class="kpi-etiqueta">Movimientos</span><span class="kpi-valor">{{ d.resumen.movimientos }}</span><span class="kpi-pie">registrados en el periodo</span></div>
+    <div class="kpi"><span class="kpi-etiqueta">Unidades que entraron</span><span class="kpi-valor" style="color: var(--ok-texto)">{{ d.resumen.unidadesEntrada }}</span><span class="kpi-pie">compras, devoluciones y ajustes</span></div>
+    <div class="kpi"><span class="kpi-etiqueta">Unidades que salieron</span><span class="kpi-valor" style="color: var(--critico-texto)">{{ d.resumen.unidadesSalida }}</span><span class="kpi-pie">ventas y ajustes</span></div>
+    <div class="kpi acento">
+      <span class="kpi-etiqueta">Variación neta</span>
+      <span class="kpi-valor">{{ d.resumen.neto > 0 ? '+' : '' }}{{ d.resumen.neto }}</span>
+      <span class="kpi-pie">{{ d.resumen.neto >= 0 ? 'el inventario creció' : 'el inventario disminuyó' }} en unidades</span>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header"><div><h2>Entradas y salidas por día</h2><p class="nota">Unidades que entraron y salieron de la bodega</p></div></div>
+    <app-grafico-series tipo="barras" [etiquetas]="etiquetas()" [claves]="claves()" [series]="series()" [formato]="formatoUnidades" [formatoEje]="formatoEje" [altura]="280" descripcion="Entradas y salidas por día" />
+  </section>
+
+  <div class="grid-dash" style="grid-template-columns: minmax(0, 1fr) minmax(0, 2fr)">
+    <section class="panel">
+      <div class="panel-header"><div><h2>Por motivo</h2></div></div>
+      @if (d.porMotivo.length === 0) { <p class="sin-datos">Sin movimientos.</p> } @else {
+        <div class="tabla-wrap">
+          <table>
+            <thead><tr><th>Motivo</th><th class="num">Mov.</th><th class="num">Entran</th><th class="num">Salen</th></tr></thead>
+            <tbody>
+              @for (m of d.porMotivo; track m.motivo) {
+                <tr><td style="text-transform: capitalize">{{ m.motivo }}</td><td class="num">{{ m.movimientos }}</td><td class="num">{{ m.entradas }}</td><td class="num">{{ m.salidas }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><div><h2>Detalle de movimientos</h2><p class="nota">{{ filtrados().length }} movimientos @if (d.truncado) { (se muestran los 1.000 más recientes) }</p></div></div>
+      <div class="filtro-chips" style="margin-bottom: 1rem">
+        <button type="button" class="filtro-chip" [class.activo]="filtroTipo() === ''" (click)="cambiarTipo('')">Todos</button>
+        <button type="button" class="filtro-chip" [class.activo]="filtroTipo() === 'entrada'" (click)="cambiarTipo('entrada')">Entradas</button>
+        <button type="button" class="filtro-chip" [class.activo]="filtroTipo() === 'salida'" (click)="cambiarTipo('salida')">Salidas</button>
+      </div>
+      @if (filtrados().length === 0) { <p class="sin-datos">No hay movimientos con este filtro.</p> } @else {
+        <div class="tabla-wrap">
+          <table>
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th class="num">Cantidad</th><th>Motivo</th><th>Registró</th></tr></thead>
+            <tbody>
+              @for (m of pagina$(); track m._id) {
+                <tr [class]="m.tipo">
+                  <td>{{ m.fecha | date:'d MMM, h:mm a' }}</td>
+                  <td><span class="celda-doble"><span class="principal">{{ m.producto }}</span><span class="secundaria codigo">{{ m.sku }}</span></span></td>
+                  <td><span [class]="'chip ' + (m.tipo === 'entrada' ? 'chip-ok' : 'chip-critico')">{{ m.tipo === 'entrada' ? 'Entrada' : 'Salida' }}</span></td>
+                  <td class="num">{{ m.cantidad }}</td>
+                  <td style="text-transform: capitalize">{{ m.motivo || '—' }}</td>
+                  <td>{{ m.registradoPor || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="paginacion">
+          <button type="button" (click)="pagina.set(pagina() - 1)" [disabled]="pagina() === 1">Anterior</button>
+          <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+          <button type="button" (click)="pagina.set(pagina() + 1)" [disabled]="pagina() === totalPaginas()">Siguiente</button>
+        </div>
+      }
+    </section>
+  </div>
+}
+}

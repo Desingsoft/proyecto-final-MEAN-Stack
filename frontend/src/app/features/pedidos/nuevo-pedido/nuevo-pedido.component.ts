@@ -7,7 +7,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { obtenerMensajeApi } from '../../../core/utils/api-error';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, tap } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of, tap, catchError } from 'rxjs';
 import { DineroPipe } from '../../../shared/pipes/dinero.pipe';
 import { ProductoService } from '../../../core/services/producto.service';
 import { PedidoService } from '../../../core/services/pedido.service';
@@ -38,6 +38,9 @@ export class NuevoPedidoComponent implements OnInit {
   router = inject(Router);
 
   productosDisponibles = signal<Producto[]>([]);
+  buscandoProductos = signal(false);
+  errorBusquedaProductos = signal('');
+  private busquedaProducto$ = new Subject<string>();
   carrito = signal<ItemCarrito[]>([]);
   busquedaProducto = signal('');
   cargando = signal(false);
@@ -60,7 +63,7 @@ export class NuevoPedidoComponent implements OnInit {
   descuentoValido = computed(() => Math.min(Math.max(Number(this.descuento()) || 0, 0), 100));
 
   productosFiltrados = computed(() => {
-    const termino = this.busquedaProducto().toLowerCase();
+    const termino = this.busquedaProducto().trim().toLowerCase();
     if (!termino) return [];
     return this.productosDisponibles().filter(p =>
       p.nombre.toLowerCase().includes(termino) || p.sku.toLowerCase().includes(termino)
@@ -68,9 +71,27 @@ export class NuevoPedidoComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Se traen todos los productos activos para buscarlos en el navegador.
-    this.productoService.getTodos(1, '', { limite: 1000 }).subscribe({
-      next: (res) => this.productosDisponibles.set(res.productos)
+    // La API admite como máximo 100 registros por página. La búsqueda se hace
+    // en el servidor para incluir todo el catálogo, no solo la primera página.
+    this.busquedaProducto$.pipe(
+      debounceTime(250),
+      distinctUntilChanged(),
+      tap(texto => {
+        this.buscandoProductos.set(texto.trim().length > 0);
+        this.errorBusquedaProductos.set('');
+      }),
+      switchMap(texto => texto.trim()
+        ? this.productoService.getTodos(1, texto.trim(), { limite: 30 }).pipe(
+            // El fallo de la API no debe cerrar el flujo de búsquedas posteriores.
+            catchError(() => {
+              this.errorBusquedaProductos.set('No se pudieron consultar los productos. Verifica tu conexión o los permisos del usuario.');
+              return of({ productos: [] as Producto[], total: 0, paginas: 0 });
+            })
+          )
+        : of({ productos: [] as Producto[], total: 0, paginas: 0 }))
+    ).subscribe(res => {
+      this.productosDisponibles.set(res.productos);
+      this.buscandoProductos.set(false);
     });
 
     this.busquedaCliente$.pipe(
@@ -88,6 +109,12 @@ export class NuevoPedidoComponent implements OnInit {
     if (clienteId) {
       this.clienteService.obtener(clienteId).subscribe({ next: (c) => this.elegirCliente(c), error: () => {} });
     }
+  }
+
+  alBuscarProducto(texto: string): void {
+    this.busquedaProducto.set(texto);
+    this.productosDisponibles.set([]);
+    this.busquedaProducto$.next(texto);
   }
 
   alEscribirCliente(texto: string): void {

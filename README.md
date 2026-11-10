@@ -812,6 +812,3 @@ Fase 71: controles de referencias de sucursal y proveedor en egresos. Ver `docs/
 **Fase 72:** ver `docs/REVISION_FASE72.md` para la validación de importes y estados en egresos huérfanos y órdenes fuera del filtro de conciliación.
 
 - **Fase 73:** puerta de calidad con conteos TAP verificados, advertencias por pruebas omitidas y bloqueo explícito por compilación no disponible (`docs/REVISION_FASE73.md`).
-# proyecto-final-MEAN-Stack
-# proyecto-final-MEAN-Stack
-# proyecto-final-MEAN-Stack

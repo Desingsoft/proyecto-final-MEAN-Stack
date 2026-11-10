@@ -2,6 +2,7 @@
 
 <div class="form-container nuevo-pedido" style="max-width: 900px; margin-top: 0.75rem">
   <h1>Nuevo pedido</h1>
+  <p class="ayuda">Selecciona un cliente, agrega los productos y revisa el valor total antes de confirmar. Los precios y las existencias se validan nuevamente en el servidor.</p>
 
   <!-- Cliente -->
   <div class="form-group" style="position: relative">
@@ -47,8 +48,13 @@
   <div class="buscador-productos">
     <label for="np-producto">Agregar producto</label>
     <input id="np-producto" type="text" placeholder="Buscar por nombre o SKU..." autocomplete="off"
-      [ngModel]="busquedaProducto()" (ngModelChange)="busquedaProducto.set($event)" />
+      [ngModel]="busquedaProducto()" (ngModelChange)="alBuscarProducto($event)" />
 
+    @if (buscandoProductos()) { <p class="ayuda" role="status">Buscando productos…</p> }
+    @if (errorBusquedaProductos()) { <div class="error-alert" role="alert">{{ errorBusquedaProductos() }}</div> }
+    @if (busquedaProducto().trim() && !buscandoProductos() && !errorBusquedaProductos() && productosFiltrados().length === 0) {
+      <p class="ayuda" role="status">No se encontraron productos activos con ese nombre o SKU.</p>
+    }
     @if (productosFiltrados().length > 0) {
       <ul class="resultados-busqueda">
         @for (producto of productosFiltrados(); track producto._id) {
@@ -59,6 +65,13 @@
         }
       </ul>
     }
+  </div>
+
+  <div class="form-group" style="margin-top: 1rem">
+    <label for="np-descuento">Descuento del pedido (%)</label>
+    <input id="np-descuento" type="number" min="0" max="100" step="1" style="max-width: 160px"
+      [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" />
+    <span class="ayuda">El descuento se aplica al total de los productos seleccionados.</span>
   </div>
 
   @if (carrito().length === 0) {
@@ -90,8 +103,7 @@
     <div style="display: flex; justify-content: flex-end; margin-top: 1rem">
       <dl style="display: grid; grid-template-columns: auto 9rem; gap: 0.4rem 1.25rem; margin: 0; text-align: right; align-items: center">
         <dt style="color: var(--texto-suave)">Subtotal</dt><dd style="margin: 0">{{ subtotal() | dinero }}</dd>
-        <dt style="color: var(--texto-suave)"><label for="np-desc">Descuento (%)</label></dt>
-        <dd style="margin: 0"><input id="np-desc" type="number" min="0" max="100" step="1" style="width: 5.5rem; text-align: right; min-height: 34px" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" /></dd>
+        <dt style="color: var(--texto-suave)">Descuento ({{ descuentoValido() }}%)</dt><dd style="margin: 0">- {{ valorDescuento() | dinero }}</dd>
         @if (valorDescuento() > 0) { <dt style="color: var(--texto-suave)">Ahorro</dt><dd style="margin: 0; color: var(--ok-texto)">- {{ valorDescuento() | dinero }}</dd> }
         <dt style="font-family: var(--fuente-titulo); font-size: 1.1rem; color: var(--tinta)">Total</dt>
         <dd style="margin: 0; font-family: var(--fuente-titulo); font-size: 1.35rem; font-weight: 700; color: var(--tinta)">{{ total() | dinero }}</dd>
